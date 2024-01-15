@@ -11,6 +11,11 @@ from hw1.roble.infrastructure.rl_trainer import RL_Trainer
 from hw1.roble.agents.bc_agent import BCAgent
 from hw1.roble.policies.loaded_gaussian_policy import LoadedGaussianPolicy
 
+<<<<<<< HEAD
+=======
+from IPython import embed
+
+>>>>>>> 9c54a40 (Adding HW1)
 class BC_Trainer(object):
     import hw1.roble.util.class_util as classu
     @classu.hidden_member_initialize
@@ -52,7 +57,11 @@ def my_app(cfg: DictConfig):
     print("Command Dir:", os.getcwd())
     params = vars(cfg)
     # print ("params: ", json.dumps(params, indent=4))
+<<<<<<< HEAD
     # print ("params: ", params)
+=======
+    print ("params: ", params)
+>>>>>>> 9c54a40 (Adding HW1)
 
     ##################################
     ### CREATE DIRECTORY FOR LOGGING
@@ -71,7 +80,11 @@ def my_app(cfg: DictConfig):
         assert cfg.alg.n_iter==1, ('Vanilla behavior cloning collects expert data just once (n_iter=1)')
 
     ## directory for logging
+<<<<<<< HEAD
     data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../data')
+=======
+    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
+>>>>>>> 9c54a40 (Adding HW1)
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)
     exp_name = logdir_prefix + cfg.env.exp_name + '_' + cfg.env.env_name + '_' + time.strftime("%d-%m-%Y_%H-%M-%S")
@@ -87,7 +100,10 @@ def my_app(cfg: DictConfig):
     ### RUN TRAINING
     ###################
     trainer = BC_Trainer(cfg)
+<<<<<<< HEAD
     
     
+=======
+>>>>>>> 9c54a40 (Adding HW1)
     out = trainer.run_training_loop()
     return out

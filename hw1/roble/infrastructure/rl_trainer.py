@@ -336,7 +336,6 @@ class RL_Trainer(object):
             self._logger.log_paths_as_videos(eval_video_paths, itr, fps=self._fps,max_videos_to_save=MAX_NVIDEO,
                                             video_title='eval_rollouts')
 
-
         # save eval metrics
         if self._log_metrics:
             # returns, for logging

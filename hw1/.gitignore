@@ -1,5 +1,8 @@
 /outputs/
 hw1/roble/expert_data/unlabelled/
 /.pytest_cache/
+<<<<<<< HEAD
 /logs/
 /run_logs/
+=======
+>>>>>>> 9c54a40 (Adding HW1)
