@@ -14,22 +14,22 @@ import numpy as np
 class MBAgent(BaseAgent):
     import hw1.roble.util.class_util as classu
     @classu.hidden_member_initialize
-    def __init__(self, env, params):
+    def __init__(self, env, **kwargs):
         super(MBAgent, self).__init__()
 
         self._env = env.unwrapped
 
         self._dyn_models = []
-        for i in range(self._params["ensemble_size"]):
+        for i in range(self._ensemble_size):
             model = FFModel(
-                **self._params
+                **kwargs
             )
             self._dyn_models.append(model)
 
         self._actor = MPCPolicy(
             self._env,
             dyn_models=self._dyn_models,
-            **self._params
+            **kwargs
         )
 
         self._replay_buffer = ReplayBuffer()
@@ -39,9 +39,9 @@ class MBAgent(BaseAgent):
         # NOTE: each model in the ensemble is trained on a different random batch of size batch_size
         losses = []
         num_data = ob_no.shape[0]
-        num_data_per_ens = int(num_data / self._params["ensemble_size"])
+        num_data_per_ens = int(num_data / self._ensemble_size)
 
-        for i in range(self._params["ensemble_size"]):
+        for i in range(self._ensemble_size):
             # select which datapoints to use for this model of the ensemble
             # you might find the num_data_per_env variable defined above useful
 
@@ -68,14 +68,14 @@ class MBAgent(BaseAgent):
 
         # get updated mean/std of the data in our replay buffer
         self._data_statistics = {
-            'obs_mean': np.mean(self._replay_buffer.obs, axis=0),
-            'obs_std': np.std(self._replay_buffer.obs, axis=0),
-            'acs_mean': np.mean(self._replay_buffer.acs, axis=0),
-            'acs_std': np.std(self._replay_buffer.acs, axis=0),
+            'obs_mean': np.mean(self._replay_buffer._obs, axis=0),
+            'obs_std': np.std(self._replay_buffer._obs, axis=0),
+            'acs_mean': np.mean(self._replay_buffer._acs, axis=0),
+            'acs_std': np.std(self._replay_buffer._acs, axis=0),
             'delta_mean': np.mean(
-                self._replay_buffer.next_obs - self._replay_buffer.obs, axis=0),
+                self._replay_buffer._next_obs - self._replay_buffer._obs, axis=0),
             'delta_std': np.std(
-                self._replay_buffer.next_obs - self._replay_buffer.obs, axis=0),
+                self._replay_buffer._next_obs - self._replay_buffer._obs, axis=0),
         }
 
         # update the actor's data_statistics too, so actor.get_action can be calculated correctly
@@ -85,7 +85,7 @@ class MBAgent(BaseAgent):
         # NOTE: sampling batch_size * ensemble_size,
         # so each model in our ensemble can get trained on batch_size data
         return self._replay_buffer.sample_random_data(
-            batch_size * self._params["ensemble_size"])
+            batch_size * self._ensemble_size)
         
     def save(self, path):
         print("NOTE: Nothing to save for MB agent (maybe the models?)")

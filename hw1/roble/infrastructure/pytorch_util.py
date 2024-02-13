@@ -34,8 +34,13 @@ def build_mlp(
     returns:
         MLP (nn.Module)
     """
-    if isinstance(kwargs["params"]["output_activation"], str):
-        output_activation = _str_to_activation[kwargs["params"]["output_activation"]]
+    try:
+        params = kwargs["params"]
+    except:
+        params = kwargs
+
+    if isinstance(params["output_activation"], str):
+        output_activation = _str_to_activation[params["output_activation"]]
     # TODO: return a MLP. This should be an instance of nn.Module
     # Note: nn.Sequential is an instance of nn.Module.
     raise NotImplementedError

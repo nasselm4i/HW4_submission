@@ -54,7 +54,7 @@ def my_app(cfg: DictConfig):
     print("Command Dir:", os.getcwd())
     params = vars(cfg)
     # print ("params: ", json.dumps(params, indent=4))
-    print ("params: ", params)
+    # print ("params: ", params)
 
     ##################################
     ### CREATE DIRECTORY FOR LOGGING
@@ -73,7 +73,7 @@ def my_app(cfg: DictConfig):
         assert cfg.alg.n_iter==1, ('Vanilla behavior cloning collects expert data just once (n_iter=1)')
 
     ## directory for logging
-    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
+    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../data')
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)
     exp_name = logdir_prefix + cfg.env.exp_name + '_' + cfg.env.env_name + '_' + time.strftime("%d-%m-%Y_%H-%M-%S")
@@ -89,5 +89,7 @@ def my_app(cfg: DictConfig):
     ### RUN TRAINING
     ###################
     trainer = BC_Trainer(cfg)
+    
+    
     out = trainer.run_training_loop()
     return out

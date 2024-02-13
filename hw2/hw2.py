@@ -50,7 +50,7 @@ def my_app(cfg: DictConfig):
 
     logdir_prefix = 'hw2_'  # keep for autograder
 
-    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
+    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../data')
 
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)

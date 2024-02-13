@@ -10,19 +10,19 @@ from hw1.roble.infrastructure import pytorch_util as ptu
 class BCAgent(BaseAgent):
     import hw1.roble.util.class_util as classu
     @classu.hidden_member_initialize
-    def __init__(self, env, agent_params, **kwargs):
+    def __init__(self, env, **kwargs):
         super(BCAgent, self).__init__()
 
         self.env_params = kwargs
         # actor/policy
         self._actor = MLPPolicySL(
-            **self._agent_params,
+            **kwargs,
             deterministic=False,
             nn_baseline=False,
 
         )
 
-        self.idm_params = self._agent_params
+        self.idm_params = kwargs
         
         # TODO: Adjust the input dimension of the IDM (hint: it's not the same as the actor as it takes both obs and next_obs)
         self.idm_params['ob_dim'] *= 2
@@ -96,4 +96,4 @@ class BCAgent(BaseAgent):
         return self._actor.save(path)
 
     def reset_replay_buffer(self):
-        self._replay_buffer = ReplayBuffer(self._agent_params['max_replay_buffer_size'])
+        self._replay_buffer = ReplayBuffer(self._max_replay_buffer_size)

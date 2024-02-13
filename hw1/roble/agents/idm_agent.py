@@ -6,13 +6,13 @@ from IPython import embed
 class IDMAgent(BaseAgent):
     import hw1.roble.util.class_util as classu
     @classu.hidden_member_initialize
-    def __init__(self, env, agent_params, **kwargs):
+    def __init__(self, env, **kwargs):
         super(IDMAgent, self).__init__()
 
         # actor/policy
 
         self._actor = MLPPolicySL(
-            **self._agent_params
+            **kwargs
         )
 
         # replay buffer

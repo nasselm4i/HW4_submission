@@ -2,7 +2,6 @@ from collections import OrderedDict
 import numpy as np
 import time
 
-from IPython import embed
 import gym
 import torch, pickle
 from omegaconf import DictConfig, OmegaConf
@@ -77,17 +76,23 @@ class RL_Trainer(object):
         ## AGENT
         #############
         ## the **self._params['alg'] is a hack to allow new updates to use kwargs nicely
-        self._agent = agent_class(self._env, self._params['alg'], **self._params["env"])
+        combined_params = dict(self._params['alg'].copy())
+        combined_params.update(self._params["env"])
+
+        self._agent = agent_class(self._env, **combined_params)
         
     def create_env(self, env_name, seed):
         import pybullet_envs
         self._env = gym.make(env_name)
+        self._eval_env = gym.make(env_name)
         self._env.seed(seed)
+        self._eval_env.seed(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
         print ("self._env:", self._env)
         
-        
+    def set_comet_logger(self, logger):
+        self._logger.set_comet_logger(logger)
 
     def run_training_loop(self, n_iter, collect_policy, eval_policy,
                         initial_expertdata=None, relabel_with_expert=False,
@@ -191,9 +196,9 @@ class RL_Trainer(object):
     def collect_training_trajectories(
             self,
             itr,
-            load_initial_expertdata,
-            collect_policy,
-            batch_size,
+            load_initial_expertdata=False,
+            collect_policy=None,
+            batch_size=0,
     ):
         """
         :param itr:
@@ -275,7 +280,9 @@ class RL_Trainer(object):
 
         # collect eval trajectories, for logging
         print("\nCollecting data for eval...")
-        eval_paths, eval_envsteps_this_batch = utils.sample_trajectories(self._env, eval_policy, self._params['alg']['eval_batch_size'], self._params['env']['max_episode_length'])
+        eval_paths, eval_envsteps_this_batch = utils.sample_trajectories(self._env, eval_policy, 
+                                                                         self._params['alg']['eval_batch_size'], 
+                                                                         self._params['env']['max_episode_length'])
 
         # save eval rollouts as videos in the video folder (for grading)
         if self._log_video:
@@ -315,6 +322,7 @@ class RL_Trainer(object):
             if itr == 0:
                 self._initial_return = np.mean(train_returns)
             logs["Initial_DataCollection_AverageReturn"] = self._initial_return
+            logs["step"] = itr
 
             for key in logs.keys():
                 value = utils.flatten(logs[key])
