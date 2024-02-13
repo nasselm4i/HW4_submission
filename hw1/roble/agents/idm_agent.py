@@ -1,29 +1,17 @@
 from hw1.roble.infrastructure.replay_buffer import ReplayBuffer
 from hw1.roble.policies.MLP_policy import MLPPolicySL
 from .base_agent import BaseAgent
-<<<<<<< HEAD
-=======
-from IPython import embed
->>>>>>> 9c54a40 (Adding HW1)
 
 class IDMAgent(BaseAgent):
     import hw1.roble.util.class_util as classu
     @classu.hidden_member_initialize
-<<<<<<< HEAD
     def __init__(self, env, **kwargs):
-=======
-    def __init__(self, env, agent_params, **kwargs):
->>>>>>> 9c54a40 (Adding HW1)
         super(IDMAgent, self).__init__()
 
         # actor/policy
 
         self._actor = MLPPolicySL(
-<<<<<<< HEAD
             **kwargs
-=======
-            **self._agent_params
->>>>>>> 9c54a40 (Adding HW1)
         )
 
         # replay buffer

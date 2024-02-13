@@ -261,15 +261,10 @@ class Logger(object):
             prefix = key
             suffix = ""
         # print ("key: ", key)
-<<<<<<< HEAD
         if (isinstance(values, list) and (len(values) > 0) and 
              True ):
             # print ("values: ", key, values)
             ## Hint: Make sure value is a scaler or single dimensional vector
-=======
-        if isinstance(values, list) and len(values) > 0:
-            ## Hint: Make sure value is a scaler or single dimentional vector
->>>>>>> 9c54a40 (Adding HW1)
             self.record_tabular(prefix + "_Average" + suffix, np.average(values))
             self.record_tabular(prefix + "_Std" + suffix, np.std(values))
             self.record_tabular(prefix + "_Median" + suffix, np.median(values))
@@ -339,10 +334,6 @@ class Logger(object):
             clip.write_videofile(str(self._log_video_path / clip_name), fps=fps, verbose=False)
             
     def log_paths_as_videos(self, paths, step, max_videos_to_save=2, fps=10, video_title='video'):
-<<<<<<< HEAD
-=======
-
->>>>>>> 9c54a40 (Adding HW1)
         # reshape the rollouts
         videos = [np.transpose(p['image_obs'], [0, 3, 1, 2]) for p in paths]
 

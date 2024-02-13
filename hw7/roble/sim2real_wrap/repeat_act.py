@@ -1,5 +1,5 @@
 import numpy as np
-from gymnasium.core import Wrapper
+from gymnasium import Wrapper
 
 
 class ActionRepeatWrapper(Wrapper):
@@ -14,4 +14,17 @@ class ActionRepeatWrapper(Wrapper):
 
     def step(self, action):
         # TODO: repeat action a random number of times
-        return super(ActionRepeatWrapper, self).step(action)
+        latest_reward = 0
+        last_obs = None
+        done = False
+        trunc = False
+        info = {}
+        num_repeat_action = self._sample_num_repeat()
+
+        for _ in range(num_repeat_action):
+            last_obs, rew, done, trunc, info = super().step(action)
+            latest_reward = rew
+            if done or trunc:
+                break
+
+        return last_obs, latest_reward, done, trunc, info

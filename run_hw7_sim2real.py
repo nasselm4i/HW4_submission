@@ -1,3 +1,4 @@
+#!/home/zeus/miniconda3/envs/cloudspace/bin/python
 import os
 import time
 
@@ -8,7 +9,11 @@ from omegaconf import DictConfig, OmegaConf
 
 from hw7.roble import ppo, sac
 
+from rich.traceback import install
+
 PATH = "./hw7/runs"
+
+SHOW_LOCAL_VARIABLE=True
 
 class Log:
     def __init__(self, cfg, PATH):
@@ -53,12 +58,11 @@ def my_main(args: DictConfig):
         [/DEFAULT]
         """
         experiment = comet_ml.Experiment(
-            api_key="OJr8UKw07AMt6yF6Us3WpIZhY",
-            project_name="roble",
-            # workspace="robot-learning"
+            api_key="5p647wDroENLOHOGebOmGFNGt",
+            project_name="homeworks",
+            workspace="robot-learning-ift6095"
         )
-        # [/TODO]
-        experiment.add_tag("hw3")
+        experiment.add_tag("hw7")
         experiment.set_name(args.meta.run_name)
         experiment.set_filename(fname="cometML_test")
         logger._logger.set_comet_logger(experiment)
@@ -96,4 +100,5 @@ def my_main(args: DictConfig):
 
 
 if __name__ == "__main__":
+    install(suppress=[hydra], show_locals=SHOW_LOCAL_VARIABLE)
     my_main()

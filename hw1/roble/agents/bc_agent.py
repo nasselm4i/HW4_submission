@@ -1,10 +1,6 @@
 from hw1.roble.infrastructure.replay_buffer import ReplayBuffer
 from hw1.roble.policies.MLP_policy import MLPPolicySL
 from .base_agent import BaseAgent
-<<<<<<< HEAD
-=======
-from IPython import embed
->>>>>>> 9c54a40 (Adding HW1)
 import torch
 import numpy as np
 import pickle
@@ -13,31 +9,19 @@ from hw1.roble.infrastructure import pytorch_util as ptu
 class BCAgent(BaseAgent):
     import hw1.roble.util.class_util as classu
     @classu.hidden_member_initialize
-<<<<<<< HEAD
     def __init__(self, env, **kwargs):
-=======
-    def __init__(self, env, agent_params, **kwargs):
->>>>>>> 9c54a40 (Adding HW1)
         super(BCAgent, self).__init__()
 
         self.env_params = kwargs
         # actor/policy
         self._actor = MLPPolicySL(
-<<<<<<< HEAD
             **kwargs,
-=======
-            **self._agent_params,
->>>>>>> 9c54a40 (Adding HW1)
             deterministic=False,
             nn_baseline=False,
 
         )
 
-<<<<<<< HEAD
         self.idm_params = kwargs
-=======
-        self.idm_params = self._agent_params
->>>>>>> 9c54a40 (Adding HW1)
         
         # TODO: Adjust the input dimension of the IDM (hint: it's not the same as the actor as it takes both obs and next_obs)
         self.idm_params['ob_dim'] *= 2
@@ -111,8 +95,4 @@ class BCAgent(BaseAgent):
         return self._actor.save(path)
 
     def reset_replay_buffer(self):
-<<<<<<< HEAD
         self._replay_buffer = ReplayBuffer(self._max_replay_buffer_size)
-=======
-        self._replay_buffer = ReplayBuffer(self._agent_params['max_replay_buffer_size'])
->>>>>>> 9c54a40 (Adding HW1)

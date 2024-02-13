@@ -2,8 +2,7 @@ import collections
 
 import gymnasium
 import numpy as np
-from gym import Wrapper
-
+from gymnasium import Wrapper
 
 class HistoryWrapper(Wrapper):
     def __init__(self, env, length):
@@ -20,28 +19,32 @@ class HistoryWrapper(Wrapper):
 
     def _reset_buf(self):
         # TODO: reset history buffer
-        pass
+        self.buffer = collections.deque(maxlen=self.length)
+        
 
     def _make_observation(self):
 
         # TODO: concatenate history into obs
-        pass
+        return np.concatenate(list(self.buffer))
 
 
-    def reset(self, **kwargs):
-
+    def reset(self, **kwargs): # Used only for the seed
         self._reset_buf()
-        ret = super(HistoryWrapper, self).reset(**kwargs)
-
+        obs, ORIG_INFO = super().reset(**kwargs)
+        
         # TODO: add first state to history buffer
-        pass
-        return self._make_observation(), ret[1]
+        for _ in range(self.length):
+            self.buffer.append(obs)
+            
+        obs = self._make_observation()
+        return obs, ORIG_INFO
 
 
     def step(self, action):
-        ret = super(HistoryWrapper, self).step(action)
-
+        obs, rew, done, trunc, info = super().step(action) # FIX DONE
+        
         # TODO: add state to history buffer
-        pass
-
-        return self._make_observation(), *ret[1:]
+        
+        self.buffer.append(obs)
+        obs = self._make_observation()
+        return obs, rew, done, trunc, info

@@ -7,7 +7,7 @@ meta:
   track: True   # if toggled, this experiment will be tracked with Weights and Biases
   # capture_video: False   # whether to capture videos of the agent performances (check out `videos` folder)
   save_model: True   # whether to save model into the `runs/{run_name}` folder
-  env_id: "Puppersim-v0"   # the id of the environment
+  env_id: "Puppersim-v0"   # the id of the environment # Seems that it's just used for the naming the run file
   timelimit: 1000
   sac_instead: False
 

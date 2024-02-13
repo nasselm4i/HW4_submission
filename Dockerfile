@@ -75,10 +75,7 @@ ADD conf conf
 ADD hw1 hw1
 ADD tools tools
 COPY run_hw1_bc.py run_hw1_bc.py
-=======
->>>>>>> 9c54a40 (Adding HW1)
-=======
->>>>>>> e772339 (FIxing merge)
+
 ## Install pytorch and cuda
 RUN pip install torch==1.10.1+cu111 torchvision==0.11.2+cu111 torchaudio==0.10.1 -f https://download.pytorch.org/whl/cu111/torch_stable.html
 
@@ -100,13 +97,6 @@ COPY run_hw3_ql.py run_hw3_ql.py
 COPY run_hw4_gc.py run_hw4_gc.py
 COPY run_hw5_expl.py run_hw5_expl.py
 COPY run_hw6_sim2real.py run_hw6_sim2real.py
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> main
->>>>>>> 9c54a40 (Adding HW1)
-=======
->>>>>>> e772339 (FIxing merge)
 
 ## Check the file were copied
 RUN ls

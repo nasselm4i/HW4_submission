@@ -26,7 +26,7 @@ def make_pupper_task(seed):
     gin.bind_parameter("scene_base.SceneBase.data_root", pd.getDataPath() + "/")
     gin.parse_config_file(_CONFIG_FILE)
     env = env_loader.load()
-    env.seed(seed)
+    env.unwrapped.seed()
 
     class GymnasiumWrapper(Wrapper):
         def __init__(self, env):
@@ -39,7 +39,7 @@ def make_pupper_task(seed):
             return "rgb_array"
 
         def reset(self, **kwargs):
-            env.seed(np.random.randint(0, 20000))   # change seed
+            env.unwrapped.seed(np.random.randint(0, 20000))   # change seed
 
             return self.env.reset(), {}
 
@@ -55,7 +55,8 @@ def make_pupper_task(seed):
 
 def get_env_thunk(seed, sim2real_wrap, idx, capture_video, video_save_path, timelimit):
     def thunk():
-        env = make_pupper_task(seed) # replace with gym.make todo @ guillaume et jaydan
+        np.random.seed(seed)
+        env = make_pupper_task(seed) # replace with gym.make
 
         env = TimeLimit(env, timelimit)
 
@@ -64,7 +65,7 @@ def get_env_thunk(seed, sim2real_wrap, idx, capture_video, video_save_path, time
 
         env = gym.wrappers.FlattenObservation(env)  # deal with dm_control's Dict observation space
         env = gym.wrappers.RecordEpisodeStatistics(env)
-        #env = gym.wrappers.ClipAction(env)
+        # env = gym.wrappers.ClipAction(env)
         #env = gym.wrappers.NormalizeObservation(env)
 
 

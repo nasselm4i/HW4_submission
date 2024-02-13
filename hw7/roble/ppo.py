@@ -81,7 +81,7 @@ def train(args, logger, PATH):
     device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
 
     # env setup
-    sim2real_wrap = make_thunk(args.sim2real)
+    sim2real_wrap = make_thunk(args.sim2real) # setup wrappers
     make_vector_env = functools.partial(puppergym.make_vector_env, sim2real_wrap=sim2real_wrap,
                                         timelimit=args.timelimit, num_vector=args.num_envs)
     envs = make_vector_env(args.seed, True, f"{PATH}/{args.run_name}/videos")
@@ -267,11 +267,11 @@ def train(args, logger, PATH):
     envs.close()
 
 
-@hydra.main( config_path="config", config_name="conf")
-def main(args):
+# @hydra.main( config_path="config", config_name="conf")
+# def main(args):
 
-    train(args, logger)
+#     train(args, logger)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

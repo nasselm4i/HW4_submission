@@ -4,10 +4,10 @@ meta:
   seed: 1   # seed of the experiment 
   torch_deterministic: True   # if toggled, `torch.backends.cudnn.deterministic=False` 
   cuda: True   # if toggled, cuda will be enabled by default 
-  track: True   # if toggled, this experiment will be tracked with Weights and Biases
+  track: False   # if toggled, this experiment will be tracked with Weights and Biases
   # capture_video: False   # whether to capture videos of the agent performances (check out `videos` folder)
   save_model: True   # whether to save model into the `runs/{run_name}` folder
-  env_id: "Puppersim-v0"   # the id of the environment
+  env_id: "Puppersim-v0"   # the id of the environment # IS IT USED ?
   timelimit: 1000
   sac_instead: False
 
@@ -55,9 +55,9 @@ minibatch_size: 0   # the mini-batch size (computed in runtime)
 num_iterations: 0   # the number of iterations (computed in runtime) 
 
 sim2real:
-  history_len: 2
-  add_last_action: True
-  gaussian_obs_scale: 0.01
-  gaussian_act_scale: 0.01
-  action_repeat_max: 2
-  max_action_repeat_on_reset: 2
+  history_len: 0 # 2
+  add_last_action: True # True
+  gaussian_obs_scale: 0 # 0.01
+  gaussian_act_scale: 0 # 0.01
+  action_repeat_max: 2 # 2
+  max_action_repeat_on_reset: 2 # 2
