@@ -33,10 +33,6 @@ class RL_Trainer(RL_Trainer):
         # Inherit from hw1 RL_Trainer
         super().__init__(params, agent_class)
 
-        # Make the gym environment
-        print (self._env) 
-        self.add_wrappers()
-
         # Are the observations images?
         img = len(self._env.observation_space.shape) > 2
 

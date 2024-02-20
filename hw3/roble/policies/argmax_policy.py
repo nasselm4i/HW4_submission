@@ -7,6 +7,7 @@ class ArgMaxPolicy(object):
         self.critic = critic
 
     def get_action(self, obs):
+        obs = np.array(obs)
         if len(obs.shape) > 3:
             observation = obs
         else:

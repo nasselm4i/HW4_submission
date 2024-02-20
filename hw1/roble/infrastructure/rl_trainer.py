@@ -29,8 +29,15 @@ class RL_Trainer(object):
         self._logger = TableLogger()
         self._logger.add_folder_output(folder_name=self._params['logging']['logdir'])
         self._logger.add_tabular_output(file_name=self._params['logging']['logdir']+"/log_data.csv")
+        config_snapshot = {}
+        for k, v in self._params.items():
+            if k != 'optimizer_spec' \
+                and k != 'q_func' \
+                    and k != 'env_wrappers' \
+                        and k != 'exploration_schedule':
+                config_snapshot[k] = v
         with open(self._params['logging']['logdir']+"/conf.yaml", "w") as fd:
-            fd.write(OmegaConf.to_yaml(self._params))
+            fd.write(OmegaConf.to_yaml(OmegaConf.create(config_snapshot)))
             fd.flush()
 
         # Set random seeds
@@ -78,7 +85,15 @@ class RL_Trainer(object):
         ## the **self._params['alg'] is a hack to allow new updates to use kwargs nicely
         combined_params = dict(self._params['alg'].copy())
         combined_params.update(self._params["env"])
-
+        try:
+            for key in self._params.keys():
+                if "env" in key or "alg" in key:
+                    continue
+                combined_params[key] = self._params[key]
+        except:
+            pass
+        
+        self.add_wrappers()
         self._agent = agent_class(self._env, **combined_params)
         
     def create_env(self, env_name, seed):
@@ -89,10 +104,6 @@ class RL_Trainer(object):
         self._eval_env.seed(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
-        print ("self._env:", self._env)
-        
-    def set_comet_logger(self, logger):
-        self._logger.set_comet_logger(logger)
 
     def run_training_loop(self, n_iter, collect_policy, eval_policy,
                         initial_expertdata=None, relabel_with_expert=False,

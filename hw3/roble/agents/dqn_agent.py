@@ -11,29 +11,26 @@ class DQNAgent(object):
     def __init__(self, env, **kwargs):
 
         self.env = env
-        self.agent_params = agent_params
-        self.batch_size = agent_params['alg']['train_batch_size']
-        # import ipdb; ipdb.set_trace()
         self.last_obs = self.env.reset()
 
         self.num_actions = self.env.action_space.n
-        self.learning_starts = agent_params['alg']['learning_starts']
-        self.learning_freq = agent_params['alg']['learning_freq']
-        self.target_update_freq = agent_params['alg']['target_update_freq']
-
         self.replay_buffer_idx = None
-        self.exploration = agent_params['exploration_schedule']
-        self.optimizer_spec = agent_params['optimizer_spec']
+        
+        self.critic = DQNCritic(**kwargs)
+        self._actor = ArgMaxPolicy(self.critic)
 
-        self.critic = DQNCritic(agent_params, self.optimizer_spec)
-        self.actor = ArgMaxPolicy(self.critic)
-
-        lander = agent_params['env']['env_name'].startswith('LunarLander')
+        lander = True if "lander" in kwargs.keys() else False
         self.replay_buffer = MemoryOptimizedReplayBuffer(
-            agent_params['alg']['replay_buffer_size'], agent_params['alg']['frame_history_len'], lander=lander)
+            kwargs['replay_buffer_size'], kwargs['frame_history_len'], lander=lander)
         self.t = 0
         self.num_param_updates = 0
-
+        
+        self.exploration = kwargs["exploration_schedule"]
+        self.batch_size = kwargs["train_batch_size"]
+        self.learning_starts = kwargs["learning_starts"]
+        self.learning_freq = kwargs["learning_freq"]
+        self.target_update_freq = kwargs["target_update_freq"]
+        
     def add_to_replay_buffer(self, paths):
         pass
 

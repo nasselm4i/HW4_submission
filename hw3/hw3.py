@@ -1,15 +1,15 @@
 import os
 import time
 import sys
-import comet_ml
 import hydra, json
 
 from hw3.roble.agents.ddpg_agent import DDPGAgent
+from hw3.roble.agents.dqn_agent import DQNAgent
 from hw3.roble.agents.td3_agent import TD3Agent
 from hw3.roble.agents.sac_agent import SACAgent
 from hw3.roble.infrastructure.rl_trainer import RL_Trainer
 from omegaconf import DictConfig, OmegaConf
-from hw3.roble.infrastructure.dqn_utils import get_env_kwargs
+from hw3.roble.infrastructure.dqn_utils import get_env_kwargs, merge_params
 
 class OffPolicyTrainer(object):
     import hw1.roble.util.class_util as classu
@@ -20,7 +20,13 @@ class OffPolicyTrainer(object):
         ## SET AGENT PARAMS
         #####################
 
-        self._params['alg']['batch_size_initial'] = self._params['alg']['batch_size']
+        additional_params = get_env_kwargs(env_name=params['env']['env_name'])
+        if additional_params is not None:
+            self._params = merge_params(dict(self._params), dict(additional_params))
+            self._params['optimizer_spec'] = additional_params['optimizer_spec']
+            self._params['q_func'] = additional_params['q_func']
+            self._params["exploration_schedule"] = additional_params["exploration_schedule"]
+            self._params["env_wrappers"] = additional_params["env_wrappers"]
 
         if self._params['alg']['rl_alg'] == 'dqn':
             agent = DQNAgent
@@ -30,8 +36,6 @@ class OffPolicyTrainer(object):
             agent = TD3Agent    
         elif self._params['alg']['rl_alg'] == 'sac':
             agent = SACAgent
-        elif self._params['alg']['rl_alg'] == 'pg':
-            agent = PGAgent
         else:
             print("Pick a rl_alg first")
             sys.exit()
@@ -41,7 +45,6 @@ class OffPolicyTrainer(object):
         ################
         ## RL TRAINER
         ################
-
         self._rl_trainer = RL_Trainer(self._params , agent_class =  agent)
 
     def run_training_loop(self):
@@ -52,11 +55,6 @@ class OffPolicyTrainer(object):
             eval_policy = self._rl_trainer._agent._actor,
             )
         return result
-    
-    def set_comet_logger(self, logger):
-        
-        self._rl_trainer.set_comet_logger(logger)
-        
         
 
 def my_app(cfg: DictConfig): 
@@ -98,25 +96,7 @@ def my_app(cfg: DictConfig):
     # cfg = OmegaConf.merge(cfg, params)
     print ("cfg.env:", cfg.env.env_name)
     trainer = OffPolicyTrainer(cfg)
-    
-    # For Comet to start tracking a training run,
-    # just add these two lines at the top of
-    # your training script:
-    
-    experiment = comet_ml.Experiment(
-    api_key=your key,
-    project_name=project name
-    )
-    experiment.add_tag("hw3")
-    experiment.set_name(exp_name)
-    experiment.set_filename(fname="cometML_test")
-    
-    trainer.set_comet_logger(experiment)
-    
-    # Metrics from this training run will now be
-    # available in the Comet UI
 
-    
     data = trainer.run_training_loop()
     print("Results: ", data)
     return data

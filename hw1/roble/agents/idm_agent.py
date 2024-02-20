@@ -1,7 +1,6 @@
 from hw1.roble.infrastructure.replay_buffer import ReplayBuffer
 from hw1.roble.policies.MLP_policy import MLPPolicySL
 from .base_agent import BaseAgent
-from IPython import embed
 
 class IDMAgent(BaseAgent):
     import hw1.roble.util.class_util as classu

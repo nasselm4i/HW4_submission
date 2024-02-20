@@ -18,13 +18,12 @@ import torch
 class Flatten(torch.nn.Module):
     def forward(self, x):
         batch_size = x.shape[0]
-        return x.view(batch_size, -1)
+        return x.reshape(batch_size, -1)
 
 OptimizerSpec = namedtuple(
     "OptimizerSpec",
     ["constructor", "optim_kwargs", "learning_rate_schedule"],
 )
-
 
 def register_custom_envs():
     from gym.envs.registration import registry
@@ -36,24 +35,36 @@ def register_custom_envs():
             reward_threshold=200,
         )
 
+import copy
+def merge_params(params1: dict, params2: dict) -> dict:
+    params1_alg = params1["alg"]
+    merged_params = copy.deepcopy(params1)
+    for k,v in params2.items():
+        if k in params1_alg:
+            try:
+                params1_alg[k] = v
+            except:
+               pass
+    merged_params["alg"] = params1_alg
+    return merged_params
 
 def get_env_kwargs(env_name):
     if env_name in ['MsPacman-v0', 'PongNoFrameskip-v4']:
         kwargs = {
-            'learning_starts': 50000,
-            'target_update_freq': 10000,
+            'learning_starts': 80_000,
+            'target_update_freq': 3_000,
             'replay_buffer_size': int(1e6),
-            'num_timesteps': int(2e8),
+            'n_iter': int(2e8),
             'q_func': create_atari_q_network,
             'learning_freq': 4,
             'grad_norm_clipping': 10,
-            'input_shape': (84, 84, 4),
+            'input_shape': (84, 84, 1),
             'env_wrappers': wrap_deepmind,
-            'frame_history_len': 4,
+            'frame_history_len': 1,
             'gamma': 0.99,
         }
-        kwargs['optimizer_spec'] = atari_optimizer(kwargs['num_timesteps'])
-        kwargs['exploration_schedule'] = atari_exploration_schedule(kwargs['num_timesteps'])
+        kwargs['optimizer_spec'] = atari_optimizer(kwargs['n_iter'])
+        kwargs['exploration_schedule'] = atari_exploration_schedule(kwargs['n_iter'])
 
     elif env_name == 'LunarLander-v3':
         def lunar_empty_wrapper(env):
@@ -61,22 +72,23 @@ def get_env_kwargs(env_name):
         kwargs = {
             'optimizer_spec': lander_optimizer(),
             'q_func': create_lander_q_network,
-            'replay_buffer_size': 50000,
+            'replay_buffer_size': 100_000,
             'batch_size': 32,
-            'gamma': 1.00,
-            'learning_starts': 1000,
-            'learning_freq': 1,
+            'gamma': 0.99,
+            'learning_starts': 30_000,
+            'learning_freq': 4,
             'frame_history_len': 1,
-            'target_update_freq': 3000,
+            'target_update_freq': 3_000,
             'grad_norm_clipping': 10,
             'lander': True,
-            'num_timesteps': 500000,
+            'n_iter': 3_000_000,
             'env_wrappers': lunar_empty_wrapper
         }
-        kwargs['exploration_schedule'] = lander_exploration_schedule(kwargs['num_timesteps'])
+        kwargs['exploration_schedule'] = lander_exploration_schedule(kwargs['n_iter'])
 
     else:
-        raise NotImplementedError
+        print("Not setting dqn args")
+        return None
 
     return kwargs
 
@@ -100,6 +112,9 @@ class Ipdb(nn.Module):
 
 class PreprocessAtari(nn.Module):
     def forward(self, x):
+        if len(x.shape) == 3:
+            x = x.unsqueeze(0)
+            
         x = x.permute(0, 3, 1, 2).contiguous()
         return x / 255.
 
@@ -107,7 +122,7 @@ class PreprocessAtari(nn.Module):
 def create_atari_q_network(ob_dim, num_actions):
     return nn.Sequential(
         PreprocessAtari(),
-        nn.Conv2d(in_channels=4, out_channels=32, kernel_size=8, stride=4),
+        nn.Conv2d(in_channels=1, out_channels=32, kernel_size=8, stride=4),
         nn.ReLU(),
         nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=2),
         nn.ReLU(),
@@ -484,6 +499,7 @@ class MemoryOptimizedReplayBuffer(object):
             Index at which the frame is stored. To be used for `store_effect` later.
         """
         if self.obs is None:
+            frame = np.array(frame)
             self.obs      = np.empty([self._size] + list(frame.shape),     dtype=np.float32 if self._lander else np.uint8)
             ## If discrete actions then just need a list of integers
             ## If continuous actions need a matrix to store action vector for each step

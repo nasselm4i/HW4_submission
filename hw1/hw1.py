@@ -11,8 +11,6 @@ from hw1.roble.infrastructure.rl_trainer import RL_Trainer
 from hw1.roble.agents.bc_agent import BCAgent
 from hw1.roble.policies.loaded_gaussian_policy import LoadedGaussianPolicy
 
-from IPython import embed
-
 class BC_Trainer(object):
     import hw1.roble.util.class_util as classu
     @classu.hidden_member_initialize
