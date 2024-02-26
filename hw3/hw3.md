@@ -96,7 +96,7 @@ any of the parameters, list them in the caption of the figure. The final
 results should use the following experiment name:
 
 ``` {.bash language="bash"}
-python run_hw3_ql.py env.env_name=MsPacman-v0 env.exp_name=q1
+python run_hw3_ql.py alg.rl_alg=dqn env.env_name=MsPacman-v0 env.exp_name=q1
 ```
 
 #### Question 2: double Q-learning (DDQN).
@@ -110,15 +110,15 @@ seeds for both DQN and DDQN. You may use `LunarLander-v3` for this
 question. The final results should use the following experiment names:
 
 ``` {.bash language="bash" breaklines="true"}
-python run_hw3_ql.py env.env_name=LunarLander-v3 env.exp_name=q2_dqn_1 logging.seed=1
-python run_hw3_ql.py env.env_name=LunarLander-v3 env.exp_name=q2_dqn_2 logging.seed=2
-python run_hw4.py env.env_name=LunarLander-v3 env.exp_name=q2_dqn_3 logging.seed=3
+python run_hw3_ql.py alg.rl_alg=dqn env.env_name=LunarLander-v3 env.exp_name=q2_dqn_1 logging.seed=1
+python run_hw3_ql.py alg.rl_alg=dqn env.env_name=LunarLander-v3 env.exp_name=q2_dqn_2 logging.seed=2
+python run_hw3_ql.py alg.rl_alg=dqn env.env_name=LunarLander-v3 env.exp_name=q2_dqn_3 logging.seed=3
 ```
 
 ``` {.bash language="bash" breaklines="true"}
-python run_hw3_ql.py env.env_name=LunarLander-v3 env.exp_name=q2_doubledqn_1 alg.double_q=true logging.seed=1
-python run_hw3_ql.py env.env_name=LunarLander-v3 env.exp_name=q2_doubledqn_2 alg.double_q=true logging.seed=2
-python run_hw3_ql.py env.env_name=LunarLander-v3 env.exp_name=q2_doubledqn_3 alg.double_q=true logging.seed=3
+python run_hw3_ql.py alg.rl_alg=dqn env.env_name=LunarLander-v3 env.exp_name=q2_doubledqn_1 alg.double_q=true logging.seed=1
+python run_hw3_ql.py alg.rl_alg=dqn env.env_name=LunarLander-v3 env.exp_name=q2_doubledqn_2 alg.double_q=true logging.seed=2
+python run_hw3_ql.py alg.rl_alg=dqn env.env_name=LunarLander-v3 env.exp_name=q2_doubledqn_3 alg.double_q=true logging.seed=3
 ```
 
 Submit the run logs for all the experiments above. In your report, make
@@ -147,9 +147,9 @@ hyperparameter setting in Question 1. The final results should use the
 following experiment name:
 
 ``` {.bash language="bash" breaklines="true"}
-python run_hw3_dqn.py env.env_name=LunarLander-v3 env.exp_name=q3_hparam1
-python run_hw3_dqn.py env.env_name=LunarLander-v3 env.exp_name=q3_hparam2
-python run_hw3_dqn.py env.env_name=LunarLander-v3 env.exp_name=q3_hparam3
+python run_hw3_dqn.py alg.rl_alg=dqn env.env_name=LunarLander-v3 env.exp_name=q3_hparam1
+python run_hw3_dqn.py alg.rl_alg=dqn env.env_name=LunarLander-v3 env.exp_name=q3_hparam2
+python run_hw3_dqn.py alg.rl_alg=dqn env.env_name=LunarLander-v3 env.exp_name=q3_hparam3
 ```
 
 You can replace `LunarLander-v3` with `PongNoFrameskip-v4` or
@@ -196,7 +196,7 @@ frequencies for the Q-Function. Also, try different learning rates for
 the Q-function and actor. First, try different learning rates.
 
 ``` {.bash escapechar="@" language="bash" breaklines="true"}
-python run_hw3_ql.py  env.exp_name=q4_ddpg_up<b>_lr<r> alg.rl_alg=ddpg
+python run_hw3_ql.py env.exp_name=q4_ddpg_up<b>_lr<r> alg.rl_alg=ddpg
 env.env_name=InvertedPendulum-v2 env.atari=false alg.num_critic_updates_per_agent_update=<b> alg.learning_rate=<lr>
 
 python run_hw3_ql.py  env.exp_name=q4_ddpg_up<b>_lr<r>  alg.rl_alg=ddpg
@@ -326,11 +326,11 @@ well using *InvertedPendulum-v2*. Try different values for the entropy
 coefficient $\alpha$ being added to the loss.
 
 ``` {.bash escapechar="@" language="bash" breaklines="true"}
-python run_hw3_ql.py    env.exp_name=q8_sac_alpha<a>  alg.rl_alg=ddpg env.env_name=InvertedPendulum-v2 env.atari=false alg.entropy_coeff=0.05
+python run_hw3_ql.py    env.exp_name=q8_sac_alpha<a>  alg.rl_alg=sac env.env_name=InvertedPendulum-v2 env.atari=false alg.entropy_coeff=0.05
 
-python run_hw3_ql.py    env.exp_name=q8_sac_alpha<a>  alg.rl_alg=ddpg env.env_name=InvertedPendulum-v2 env.atari=false alg.entropy_coeff=0.05
+python run_hw3_ql.py    env.exp_name=q8_sac_alpha<a>  alg.rl_alg=sac env.env_name=InvertedPendulum-v2 env.atari=false alg.entropy_coeff=0.05
 
-python run_hw3_ql.py    env.exp_name=q8_sac_alpha<a>  alg.rl_alg=ddpg env.env_name=InvertedPendulum-v2 env.atari=false alg.entropy_coeff=0.05
+python run_hw3_ql.py    env.exp_name=q8_sac_alpha<a>  alg.rl_alg=sac env.env_name=InvertedPendulum-v2 env.atari=false alg.entropy_coeff=0.05
 ```
 
 #### Question 9: Evaluate SAC compared to TD3
@@ -366,7 +366,7 @@ Make sure to submit all the log files that are requested by GradeScope
 AutoGrader, you can find them in your log directory `/data/exp_name/` by
 default.
 
-Submitting code, experiments runs, and videos. 
+Submitting code, experiment runs, and videos. 
 ----------------------------------------------
 
 In order to turn in your code and experiment logs, create a folder that
