@@ -1,6 +1,7 @@
 import os
 import time
 import sys
+import comet_ml
 import hydra, json
 
 from hw3.roble.agents.dqn_agent import DQNAgent
@@ -52,6 +53,9 @@ class offpolicy_Trainer(object):
             collect_policy = self._rl_trainer._agent._actor,
             eval_policy = self._rl_trainer._agent._actor,
             )
+        
+    def set_comet_logger(self, logger):
+        self._rl_trainer.set_comet_logger(logger)
 
 def my_app(cfg: DictConfig): 
     print(OmegaConf.to_yaml(cfg))
@@ -93,5 +97,28 @@ def my_app(cfg: DictConfig):
     ###################
     # cfg = OmegaConf.merge(cfg, params)
     trainer = offpolicy_Trainer(params)
+    
+    """
+    [DEFAULT]
+    experiment = comet_ml.Experiment(
+    api_key=your key,
+    project_name=project name,
+    workspace="robot-learning"
+    )
+    [/DEFAULT]
+    """
+    experiment = comet_ml.Experiment(
+    api_key="v063r9jHG5GDdPFvCtsJmHYZu",
+    project_name="roble",
+    workspace="robot-learning"
+    )
+    experiment.add_tag("hw3")
+    experiment.set_name(exp_name)
+    experiment.set_filename(fname="cometML_test")
+    
+    trainer.set_comet_logger(experiment)
+    experiment.log_parameters(cfg)
+    # [/TODO]
+    
     trainer.run_training_loop()
 
