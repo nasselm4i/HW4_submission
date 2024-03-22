@@ -19,19 +19,12 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
         Note: batch self.size /n/ is defined at runtime.
         is None
     """
-    def __init__(self, hparams):
-        super().__init__()
-        self.ob_dim = hparams['alg']['ob_dim']
-        self.ac_dim = hparams['alg']['ac_dim']
-        self.discrete = hparams['alg']['discrete']
-        self.size = hparams['alg']['size']
-        self.n_layers = hparams['alg']['n_layers']
-        self.learning_rate = hparams['alg']['learning_rate']
-
-        # critic parameters
-        self.num_target_updates = hparams['alg']['num_target_updates']
-        self.num_grad_steps_per_target_update = hparams['alg']['num_grad_steps_per_target_update']
-        self.gamma = hparams['alg']['discount']
+    import hw1.roble.util.class_util as classu
+    @classu.hidden_member_initialize
+    def __init__(self, **kwargs):
+        
+        super().__init__(**kwargs)
+        
         self.critic_network = ptu.build_mlp(
             self.ob_dim,
             1,
@@ -56,11 +49,9 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
     def update(self, ob_no, ac_na, next_ob_no, reward_n, terminal_n):
         """
             Update the parameters of the critic.
-
             let sum_of_path_lengths be the sum of the lengths of the paths sampled from
                 Agent.sample_trajectories
             let num_paths be the number of paths sampled from Agent.sample_trajectories
-
             arguments:
                 ob_no: shape: (sum_of_path_lengths, ob_dim)
                 ac_na: length: sum_of_path_lengths. The action taken at the current step.
@@ -69,7 +60,6 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
                     the reward for each timestep
                 terminal_n: length: sum_of_path_lengths. Each element in terminal_n is either 1 if the episode ended
                     at that timestep of 0 if the episode did not end
-
             returns:
                 training loss
         """
@@ -86,5 +76,25 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
         #       to 0) when a terminal state is reached
         # HINT: make sure to squeeze the output of the critic_network to ensure
         #       that its dimensions match the reward
-
+    
+        ob_no = ptu.from_numpy(ob_no)
+        ac_na = ptu.from_numpy(ac_na)
+        next_ob_no = ptu.from_numpy(next_ob_no)
+        reward_n = ptu.from_numpy(reward_n)
+        terminal_n = ptu.from_numpy(terminal_n)
+    
+        for i in range(self.num_grad_steps_per_target_update):
+            next_v = self(next_ob_no)
+            target = reward_n + self.gamma * next_v * (1 - terminal_n)
+    
+            for j in range(self.num_target_updates):
+                pred = self(ob_no)
+    
+                assert pred.shape == target.shape
+                loss = self.loss(pred, target.detach())
+    
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+    
         return loss.item()

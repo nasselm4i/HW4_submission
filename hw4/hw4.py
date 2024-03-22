@@ -107,17 +107,18 @@ def my_app(cfg: DictConfig):
     )
     [/DEFAULT]
     """
-    experiment = comet_ml.Experiment(
-    api_key="v063r9jHG5GDdPFvCtsJmHYZu",
-    project_name="roble",
-    workspace="robot-learning"
-    )
-    experiment.add_tag("hw3")
-    experiment.set_name(exp_name)
-    experiment.set_filename(fname="cometML_test")
-    
-    trainer.set_comet_logger(experiment)
-    experiment.log_parameters(cfg)
+    if not cfg.logging.debug:
+        experiment = comet_ml.Experiment(
+        api_key="v063r9jHG5GDdPFvCtsJmHYZu",
+        project_name="roble",
+        workspace="robot-learning"
+        )
+        experiment.add_tag("hw3")
+        experiment.set_name(exp_name)
+        experiment.set_filename(fname="cometML_test")
+        
+        trainer.set_comet_logger(experiment)
+        experiment.log_parameters(cfg)
     # [/TODO]
     
     trainer.run_training_loop()

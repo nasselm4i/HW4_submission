@@ -42,16 +42,18 @@ class MLPPolicyPG(MLPPolicy):
             'Training_Loss': ptu.to_numpy(loss),
         }
         if self._nn_baseline:
-            targets_n = normalize(q_values, np.mean(q_values), np.std(q_values))
-            targets_n = ptu.from_numpy(targets_n)
+            # targets_n = normalize(q_values, np.mean(q_values), np.std(q_values))
+            targets_n = ptu.from_numpy(q_values * ((1.0-self._gamma)/1.0))
             baseline_predictions = self._baseline(observations).squeeze()
             assert baseline_predictions.dim() == baseline_predictions.dim()
     
-            baseline_loss = F.mse_loss(baseline_predictions, targets_n)
-            self._baseline_optimizer.zero_grad()
-            baseline_loss.backward()
-            self._baseline_optimizer.step()
-            train_log["Critic_Loss"] = ptu.to_numpy(baseline_loss)
+            for i in range(self._num_critic_updates_per_agent_update):
+                baseline_predictions = self._baseline(observations).squeeze()
+                baseline_loss = F.mse_loss(baseline_predictions, targets_n)
+                self._baseline_optimizer.zero_grad()
+                baseline_loss.backward()
+                self._baseline_optimizer.step()
+                train_log["Critic_Loss"] = ptu.to_numpy(baseline_loss)
         else:
             train_log["Critic_Loss"] = ptu.to_numpy(0)
 

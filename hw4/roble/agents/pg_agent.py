@@ -4,6 +4,7 @@ from .base_agent import BaseAgent
 from hw4.roble.policies.MLP_policy import MLPPolicyPG
 from hw4.roble.infrastructure.replay_buffer import ReplayBuffer
 from hw3.roble.infrastructure.utils import normalize
+from hw4.roble.critics.bootstrapped_continuous_critic import BootstrappedContinuousCritic
 
 class PGAgent(BaseAgent):
     import hw1.roble.util.class_util as classu
@@ -27,6 +28,14 @@ class PGAgent(BaseAgent):
         self._actor = MLPPolicyPG(
             **kwargs
         )
+        
+        # create the critic (baseline) network, if needed
+#         if self._use_baseline:
+#            self._critic = BootstrappedContinuousCritic(
+#                **kwargs
+#            )
+#        else:
+#            self._critic = None
 
         # replay buffer
         self._replay_buffer = ReplayBuffer(1000000)
@@ -42,6 +51,9 @@ class PGAgent(BaseAgent):
         advantages = self.estimate_advantage(observations, rewards_list, q_values, terminals)
         advantages = advantages / np.std(advantages) ## Try to keep the statistics of the advantages standardized
         train_log = self._actor.update(observations, actions, advantages=advantages, q_values=q_values)
+        
+        # for critic_update in range(self._num_critic_updates_per_agent_update):
+        #     log_ = self._q_fun.update(ob_no, ac_na, next_ob_no, re_n, terminal_n)
 
         return train_log
 
@@ -51,21 +63,10 @@ class PGAgent(BaseAgent):
             Monte Carlo estimation of the Q function.
         """
         
-        # Case 1: trajectory-based PG
-        # Estimate Q^{pi}(s_t, a_t) by the total discounted reward summed over entire trajectory
-        if not self._reward_to_go:
-        
-            # For each point (s_t, a_t), associate its value as being the discounted sum of rewards over the full trajectory
-            # In other words: value of (s_t, a_t) = sum_{t'=0}^T gamma^t' r_{t'}
-            q_values = np.concatenate([self._discounted_return(r) for r in rews_list])
-        
-        # Case 2: reward-to-go PG
-        # Estimate Q^{pi}(s_t, a_t) by the discounted sum of rewards starting from t
-        else:
         
             # For each point (s_t, a_t), associate its value as being the discounted sum of rewards over the full trajectory
             # In other words: value of (s_t, a_t) = sum_{t'=t}^T gamma^(t'-t) * r_{t'}
-            q_values = np.concatenate([self._discounted_cumsum(r) for r in rews_list])
+        q_values = np.concatenate([self._discounted_cumsum(r) for r in rews_list])
         
         return q_values
 
@@ -86,8 +87,9 @@ class PGAgent(BaseAgent):
                 ## that the predictions have the same mean and standard deviation as
                 ## the current batch of q_values
 
-            values_normalized = (values_unnormalized - values_unnormalized.mean()) / (values_unnormalized.std() + 1e-8)
-            values = values_normalized * np.std(q_values) + np.mean(q_values)
+            # values_normalized = (values_unnormalized - values_unnormalized.mean()) / (values_unnormalized.std() + 1e-8)
+            # values = values_normalized * np.std(q_values) + np.mean(q_values)
+            values = values_unnormalized * (1 / (1.0 - self._gamma))
 
             if self._gae_lambda is not None:
                 ## append a dummy T+1 value for simpler recursive calculation
@@ -165,6 +167,7 @@ class PGAgent(BaseAgent):
     
         # list where each entry t contains the same thing
             # it contains sum_{t'=0}^T gamma^t' r_{t'}
+        ##TODO this is not implimented properly.
         list_of_discounted_returns = np.ones_like(rewards) * sum_of_discounted_rewards
     
         return list_of_discounted_returns
