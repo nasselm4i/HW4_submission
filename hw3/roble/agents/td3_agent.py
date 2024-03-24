@@ -13,6 +13,6 @@ class TD3Agent(DDPGAgent):
 
         super().__init__(env, **kwargs)
         
-        self.q_fun = TD3Critic(self._actor, 
+        self._q_fun = TD3Critic(self._actor, 
                                **kwargs)
         

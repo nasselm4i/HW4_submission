@@ -36,9 +36,9 @@ class RL_Trainer(object):
                     and k != 'env_wrappers' \
                         and k != 'exploration_schedule':
                 config_snapshot[k] = v
-        with open(self._params['logging']['logdir']+"/conf.yaml", "w") as fd:
-            fd.write(OmegaConf.to_yaml(OmegaConf.create(config_snapshot)))
-            fd.flush()
+#        with open(self._params['logging']['logdir']+"/conf.yaml", "w") as fd:
+#            fd.write(OmegaConf.to_yaml(OmegaConf.create(config_snapshot)))
+#            fd.flush()
 
         # Set random seeds
         seed = self._params['logging']['random_seed']
@@ -74,8 +74,8 @@ class RL_Trainer(object):
             self._fps = 1/self._env.model.opt.timestep
         elif 'env_wrappers' in self._params:
             self._fps = 30 # This is not actually used when using the Monitor wrapper
-        elif 'video.frames_per_second' in self._env.env.metadata.keys():
-            self._fps = self._env.env.metadata['video.frames_per_second']
+        elif 'video.frames_per_second' in self._env.metadata.keys():
+            self._fps = self._env.metadata['video.frames_per_second']
         else:
             self._fps = 10
 
@@ -95,6 +95,8 @@ class RL_Trainer(object):
         
         self.add_wrappers()
         self._agent = agent_class(self._env, **combined_params)
+        self._log_video = False
+        self._log_metrics = True
         
     def create_env(self, env_name, seed):
         import pybullet_envs
@@ -104,6 +106,9 @@ class RL_Trainer(object):
         self._eval_env.seed(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
+        
+    def set_comet_logger(self, logger):
+        self._logger.set_comet_logger(logger)
 
     def run_training_loop(self, n_iter, collect_policy, eval_policy,
                         initial_expertdata=None, relabel_with_expert=False,
@@ -291,6 +296,7 @@ class RL_Trainer(object):
 
         # collect eval trajectories, for logging
         print("\nCollecting data for eval...")
+        
         eval_paths, eval_envsteps_this_batch = utils.sample_trajectories(self._env, eval_policy, 
                                                                          self._params['alg']['eval_batch_size'], 
                                                                          self._params['env']['max_episode_length'])
@@ -307,6 +313,7 @@ class RL_Trainer(object):
             print('\nSaving eval rollouts as videos...')
             self._logger.log_paths_as_videos(eval_video_paths, itr, fps=self._fps,max_videos_to_save=MAX_NVIDEO,
                                             video_title='eval_rollouts')
+
 
         # save eval metrics
         if self._log_metrics:
@@ -330,6 +337,10 @@ class RL_Trainer(object):
             logs.update(last_log)
             logs["reward"] = [path["reward"] for path in paths]
             logs["eval_reward"] = [path["reward"] for path in eval_paths]
+            for key in paths[0]["infos"][0]:
+                logs[str(key)] = [info[key] for path in paths for info in path["infos"]]
+                # logs[str(key)] = [value[key] for value in logs[str(key)]]
+                logs["eval_"+ str(key)] = [info[key] for path in eval_paths for info in path["infos"]]
             if itr == 0:
                 self._initial_return = np.mean(train_returns)
             logs["Initial_DataCollection_AverageReturn"] = self._initial_return

@@ -42,8 +42,9 @@ class MLPPolicyPG(MLPPolicy):
             'Training_Loss': ptu.to_numpy(loss),
         }
         if self._nn_baseline:
-            # targets_n = normalize(q_values, np.mean(q_values), np.std(q_values))
-            targets_n = ptu.from_numpy(q_values * ((1.0-self._gamma)/1.0))
+            targets_n = normalize(q_values, np.mean(q_values), np.std(q_values))
+            targets_n = ptu.from_numpy(targets_n)
+            # targets_n = ptu.from_numpy(q_values * ((1.0-self._gamma)/1.0))
             baseline_predictions = self._baseline(observations).squeeze()
             assert baseline_predictions.dim() == baseline_predictions.dim()
     

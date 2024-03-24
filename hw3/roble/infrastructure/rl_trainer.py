@@ -42,12 +42,12 @@ class RL_Trainer(RL_Trainer):
         # Make the gym environment
         if 'env_wrappers' in self._params:
             # These operations are currently only for Atari envs
-            #self._env = wrappers.Monitor(
-            #    self._env,
-            #    os.path.join(self._params['logging']['logdir'], "gym"),
-            #    force=True,
-            #    video_callable=(None if self._params['logging']['video_log_freq'] > 0 else False),
-            #)
+            self._env = wrappers.Monitor(
+               self._env,
+               os.path.join(self._params['logging']['logdir'], "gym"),
+               force=True,
+               video_callable=(None if self._params['logging']['video_log_freq'] > 0 else False),
+            )
             self._env = self._params['env_wrappers'](self._env)
         if 'non_atari_colab_env' in self._params and self._params['logging']['video_log_freq'] > 0:
             self._env = wrappers.Monitor(
@@ -136,13 +136,10 @@ class RL_Trainer(RL_Trainer):
                 (len(all_logs) > 1)):
                 # perform logging
                 print('\nBeginning logging procedure...')
-#                if isinstance(self._agent, DQNAgent):
-#                    self.perform_dqn_logging(itr, all_logs)
-#                
-#                elif isinstance(self._agent, DDPGAgent):
-#                    self.perform_ddpg_logging(itr, all_logs)
-                
-                self.perform_logging(itr, eval_policy, all_logs)
+                if isinstance(self._agent, DQNAgent):
+                    self.perform_dqn_logging(itr, all_logs)
+                else:
+                    self.perform_logging(itr, eval_policy, all_logs)
 
                 if self._params['logging']['save_params']:
                     self._agent.save('{}/agent_itr_{}.pt'.format(self._params['logging']['logdir'], itr))
@@ -173,28 +170,25 @@ class RL_Trainer(RL_Trainer):
         if self._mean_episode_reward > -5000:
             logs["Train_AverageReturn"] = np.mean(self._mean_episode_reward)
         print("mean reward (100 episodes) %f" % self._mean_episode_reward)
-        if self._best_mean_episode_reward > -5000:
-            logs["Train_BestReturn"] = np.mean(self._best_mean_episode_reward)
-        print("best mean reward %f" % self._best_mean_episode_reward)
-
+        #if self._best_mean_episode_reward > -5000:
+        #    logs["Train_BestReturn"] = np.mean(self._best_mean_episode_reward)
+        #print("best mean reward %f" % self._best_mean_episode_reward)
         if self._start_time is not None:
             time_since_start = (time.time() - self._start_time)
             print("running time %f" % time_since_start)
             logs["TimeSinceStart"] = time_since_start
-
         logs.update(last_log)
 
         sys.stdout.flush()
 
         for key, value in logs.items():
             print('{} : {}'.format(key, value))
-            self._logger.log_scalar(value, key, self._agent._t)
-        self._logger.log_file(itr, logs, itr)
+            self._logger.record_tabular_misc_stat(key, value)
+        
+        self._logger.dump_tabular()
         print('Done DQN logging...\n\n')
-
         # self._logger.flush()
         
-    
     def perform_ddpg_logging(self, itr, all_logs):        
         logs = OrderedDict()
         logs["Train_EnvstepsSoFar"] = self._agent._t

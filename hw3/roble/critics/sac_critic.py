@@ -56,14 +56,12 @@ class SACCritic(DDPGCritic):
         target = TODO
         target = target.detach()
 
-        assert q_t_values.shape == target.shape
         loss = self._loss(q_t_values, target)
 
         self._optimizer.zero_grad()
         loss.backward()
         utils.clip_grad_value_(self._q_net.parameters(), self._grad_norm_clipping)
         self._optimizer.step()
-        self._learning_rate_scheduler.step()
         return {
             'Training Loss': ptu.to_numpy(loss),
         }

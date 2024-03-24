@@ -15,11 +15,6 @@ class PGAgent(BaseAgent):
         # init vars
         self._agent_params = kwargs
         print ("self.agent_params: ", self._agent_params)
-        self._gamma = self._agent_params['discount']
-        self._standardize_advantages = self._agent_params['standardize_advantages']
-        self._nn_baseline = self._agent_params['nn_baseline']
-        self._reward_to_go = self._agent_params['reward_to_go']
-        self._gae_lambda = self._agent_params['gae_lambda']
 
         if self._gae_lambda == 'None':
             self._gae_lambda = None
@@ -49,7 +44,7 @@ class PGAgent(BaseAgent):
 
         q_values = self.calculate_q_vals(rewards_list)
         advantages = self.estimate_advantage(observations, rewards_list, q_values, terminals)
-        advantages = advantages / np.std(advantages) ## Try to keep the statistics of the advantages standardized
+        # advantages = advantages / np.std(advantages) ## Try to keep the statistics of the advantages standardized
         train_log = self._actor.update(observations, actions, advantages=advantages, q_values=q_values)
         
         # for critic_update in range(self._num_critic_updates_per_agent_update):
@@ -63,12 +58,24 @@ class PGAgent(BaseAgent):
             Monte Carlo estimation of the Q function.
         """
         
+        # Case 1: trajectory-based PG
+        # Estimate Q^{pi}(s_t, a_t) by the total discounted reward summed over entire trajectory
+        if not self._reward_to_go:
+        
+            # For each point (s_t, a_t), associate its value as being the discounted sum of rewards over the full trajectory
+            # In other words: value of (s_t, a_t) = sum_{t'=0}^T gamma^t' r_{t'}
+            q_values = np.concatenate([self._discounted_return(r) for r in rews_list])
+        
+        # Case 2: reward-to-go PG
+        # Estimate Q^{pi}(s_t, a_t) by the discounted sum of rewards starting from t
+        else:
         
             # For each point (s_t, a_t), associate its value as being the discounted sum of rewards over the full trajectory
             # In other words: value of (s_t, a_t) = sum_{t'=t}^T gamma^(t'-t) * r_{t'}
-        q_values = np.concatenate([self._discounted_cumsum(r) for r in rews_list])
+            q_values = np.concatenate([self._discounted_cumsum(r) for r in rews_list])
         
         return q_values
+
 
     def estimate_advantage(self, obs, rews_list, q_values, terminals):
 
@@ -87,9 +94,11 @@ class PGAgent(BaseAgent):
                 ## that the predictions have the same mean and standard deviation as
                 ## the current batch of q_values
 
-            # values_normalized = (values_unnormalized - values_unnormalized.mean()) / (values_unnormalized.std() + 1e-8)
-            # values = values_normalized * np.std(q_values) + np.mean(q_values)
-            values = values_unnormalized * (1 / (1.0 - self._gamma))
+            # if self._standardize_advantages:
+            values_normalized = (values_unnormalized - values_unnormalized.mean()) / (values_unnormalized.std() + 1e-8)
+            values = values_normalized * np.std(q_values) + np.mean(q_values)
+            
+            # values = values_unnormalized * (1 / (1.0 - self._gamma))
 
             if self._gae_lambda is not None:
                 ## append a dummy T+1 value for simpler recursive calculation

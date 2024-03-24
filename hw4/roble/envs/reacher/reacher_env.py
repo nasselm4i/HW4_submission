@@ -40,7 +40,7 @@ class Reacher7DOFEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         # finalize step
         env_info = {'ob': ob,
-                    'rewards': self.reward_dict,
+                    # 'rewards': self.reward_dict,
                     'score': score,
                     "success": self.get_target_dist(ob) < 0.2}
 

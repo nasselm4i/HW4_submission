@@ -52,15 +52,15 @@ def get_env_kwargs(env_name):
     if env_name in ['MsPacman-v0', 'PongNoFrameskip-v4']:
         kwargs = {
             'learning_starts': 80_000,
-            'target_update_freq': 3_000,
+            'target_update_freq': 1_000,
             'replay_buffer_size': int(1e6),
             'n_iter': int(2e8),
             'q_func': create_atari_q_network,
             'learning_freq': 4,
             'grad_norm_clipping': 10,
-            'input_shape': (84, 84, 1),
+            'input_shape': (84, 84, 4),
             'env_wrappers': wrap_deepmind,
-            'frame_history_len': 1,
+            'frame_history_len': 4,
             'gamma': 0.99,
         }
         kwargs['optimizer_spec'] = atari_optimizer(kwargs['n_iter'])
@@ -78,10 +78,10 @@ def get_env_kwargs(env_name):
             'learning_starts': 30_000,
             'learning_freq': 4,
             'frame_history_len': 1,
-            'target_update_freq': 3_000,
+            'target_update_freq': 1_000,
             'grad_norm_clipping': 10,
             'lander': True,
-            'n_iter': 3_000_000,
+            'n_iter': 1_000_000,
             'env_wrappers': lunar_empty_wrapper
         }
         kwargs['exploration_schedule'] = lander_exploration_schedule(kwargs['n_iter'])
@@ -122,7 +122,7 @@ class PreprocessAtari(nn.Module):
 def create_atari_q_network(ob_dim, num_actions):
     return nn.Sequential(
         PreprocessAtari(),
-        nn.Conv2d(in_channels=1, out_channels=32, kernel_size=8, stride=4),
+        nn.Conv2d(in_channels=4, out_channels=32, kernel_size=8, stride=4),
         nn.ReLU(),
         nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=2),
         nn.ReLU(),

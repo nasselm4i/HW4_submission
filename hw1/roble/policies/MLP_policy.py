@@ -44,14 +44,20 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
                     self._learning_rate
                 )
             else:
-                self._logstd = nn.Parameter(
-                    torch.zeros(self._ac_dim, dtype=torch.float32, device=ptu.device)
+                self._std = nn.Parameter(
+                    torch.ones(self._ac_dim, dtype=torch.float32, device=ptu.device) * 0.15
                 )
-                self._logstd.to(ptu.device)
-                self._optimizer = optim.Adam(
-                    itertools.chain([self._logstd], self._mean_net.parameters()),
-                    self._learning_rate
-                )
+                self._std.to(ptu.device)
+                if self._learn_policy_std:
+                    self._optimizer = optim.Adam(
+                        itertools.chain([self._std], self._mean_net.parameters()),
+                        self._learning_rate
+                    )
+                else:
+                    self._optimizer = optim.Adam(
+                        itertools.chain(self._mean_net.parameters()),
+                        self._learning_rate
+                    )
 
         if self._nn_baseline:
             self._baseline = ptu.build_mlp(
@@ -62,7 +68,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             self._baseline.to(ptu.device)
             self._baseline_optimizer = optim.Adam(
                 self._baseline.parameters(),
-                self._learning_rate,
+                self._critic_learning_rate,
             )
         else:
             self._baseline = None

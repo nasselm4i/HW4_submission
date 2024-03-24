@@ -93,25 +93,23 @@ class RL_Trainer(RL_Trainer):
         self._total_envsteps = 0
         self._start_time = time.time()
 
-        print_period = 1
 
         for itr in range(n_iter):
-            if itr % print_period == 0:
-                print("\n\n********** Iteration %i ************"%itr)
+            print("\n\n********** Iteration %i ************"%itr)
 
             # decide if videos should be rendered/logged at this iteration
             if itr % self._params['logging']['video_log_freq'] == 0 and self._params['logging']['video_log_freq'] != -1:
-                self._logvideo = True
+                self._log_video = True
             else:
-                self._logvideo = False
+                self._log_video = False
 
             # decide if metrics should be logged
             if self._params['logging']['scalar_log_freq'] == -1:
-                self._logmetrics = False
+                self._log_metrics = False
             elif itr % self._params['logging']['scalar_log_freq'] == 0:
-                self._logmetrics = True
+                self._log_metrics = True
             else:
-                self._logmetrics = False
+                self._log_metrics = False
 
             # collect trajectories, to be used for training
             if isinstance(self._agent, DQNAgent) or isinstance(self._agent, DDPGAgent):
@@ -137,15 +135,13 @@ class RL_Trainer(RL_Trainer):
             self._agent.add_to_replay_buffer(paths)
 
             # train agent (using sampled data from replay buffer)
-            if itr % print_period == 0:
-                print("\nTraining agent...")
+            print("\nTraining agent...")
             all_logs = self.train_agent()
     
 
             # log/save
             if ((self._log_video or self._log_metrics) and 
-                ( itr % print_period == 0) and 
-                (len(all_logs) > 1)):
+                (len(all_logs) >= 1)):
                 # perform logging
                 print('\nBeginning logging procedure...')
                 if isinstance(self._agent, DQNAgent):

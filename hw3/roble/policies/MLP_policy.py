@@ -40,7 +40,7 @@ class MLPPolicyDeterministic(MLPPolicy):
         # TODO: update the policy and return the loss
         ## Hint you will need to use the q_fun for the loss
         ## Hint: do not update the parameters for q_fun in the loss
-        return {"Loss": loss.item()}
+        return {"Training Loss": loss.item()}
     
 class MLPPolicyStochastic(MLPPolicy):
     """
