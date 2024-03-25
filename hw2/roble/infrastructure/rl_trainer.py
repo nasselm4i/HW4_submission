@@ -3,7 +3,7 @@ from gym import wrappers
 
 # hw1 imports
 from hw1.roble.infrastructure.rl_trainer import RL_Trainer
-from hw1.roble.infrastructure import pytorch_util as ptu
+from hw2.roble.infrastructure import pytorch_util as ptu
 
 # hw2 imports
 from hw2.roble.agents.mb_agent import MBAgent

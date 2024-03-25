@@ -10,16 +10,16 @@ env:
 alg:
   num_rollouts: 5
   train_idm: false
-  do_dagger: false
+  do_dagger: true
   num_agent_train_steps_per_iter: 1_000 # number of gradient steps for training policy (per iter in n_iter)
   num_idm_train_steps_per_iter: 10_000
-  n_iter: 1
+  n_iter: 3
   batch_size: 1000 # training data collected (in the env) during each iteration
-  eval_batch_size: 2000 # eval data collected (in the env) for logging metrics
+  eval_batch_size: 1000 # eval data collected (in the env) for logging metrics
   train_batch_size: 100 # number of sampled data points to be used per gradient/train step
   learning_rate: 5e-3 # THe learning rate for BC
   max_replay_buffer_size: 1000000 ## Size of the replay buffer
-  use_gpu: False
+  use_gpu: True
   gpu_id: 0 # The index for the GPU (the computer you use may have more than one)
   discrete: False
   ac_dim: 0 ## This will be overridden in the code

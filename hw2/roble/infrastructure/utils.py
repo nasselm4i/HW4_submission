@@ -122,7 +122,7 @@ def mean_squared_error(a, b):
 ############################################
 ############################################
 
-def Path(obs, image_obs, acs, rewards, next_obs, terminals):
+def Path(obs, image_obs, acs, rewards, next_obs, terminals, infos):
     """
         Take info (separate arrays) from a single rollout
         and return it in a single dictionary
@@ -134,7 +134,8 @@ def Path(obs, image_obs, acs, rewards, next_obs, terminals):
             "reward" : np.array(rewards, dtype=np.float32),
             "action" : np.array(acs, dtype=np.float32),
             "next_observation": np.array(next_obs, dtype=np.float32),
-            "terminal": np.array(terminals, dtype=np.float32)}
+            "terminal": np.array(terminals, dtype=np.float32),
+            "infos": infos}
 
 
 def convert_listofrollouts(paths, concat_rew=True):
@@ -184,3 +185,15 @@ def add_noise(data_inp, noiseToSignal=0.01):
             0, np.absolute(std_of_noise[j]), (data.shape[0],)))
 
     return data
+
+def flatten(matrix):
+    ## Check and fix a matrix with different length lists.
+    import collections.abc
+    if (isinstance(matrix, (collections.abc.Sequence,))  and 
+        isinstance(matrix[0], (collections.abc.Sequence, np.ndarray))): ## Flatten possible inhomogeneous arrays
+        flat_list = []
+        for row in matrix:
+            flat_list.extend(row)
+        return flat_list
+    else:
+        return matrix

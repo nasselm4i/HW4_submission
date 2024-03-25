@@ -1,10 +1,4 @@
-env:
-    env_name: 'HalfCheetah-v2' # ['LunarLander-v3', 'MsPacman-v0', 'HalfCheetah-v2', 'CartPole-v0']
-    max_episode_length: 200
-    exp_name: 'todo'
-    atari: False
 
-alg:
     double_q: False
     batch_size: 64 ## The min amount of experience to collect before a training update
     train_batch_size: 64 ## training batch size used for computing gradients of q function or policy
@@ -37,15 +31,8 @@ alg:
     policy_std: 0.1
     nn_baseline: False
     deterministic: True
+    on_policy: False
     network:
         layer_sizes: [ 64, 64 ]
         activations: [ "tanh", "tanh" ]
         output_activation: "identity"
-
-logging:
-    video_log_freq: -1 # How often to generate a video to log/
-    scalar_log_freq: 10000 # How often to log training information and run evaluation during training.
-    save_params: false # Should the parameters given to the script be saved? (Always...)
-    random_seed: 1234
-    logdir: ""
-    debug: false

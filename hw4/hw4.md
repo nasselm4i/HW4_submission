@@ -45,7 +45,7 @@ Modify the position of this item and use its location as your goal.
 
 For this part of the assignment and the first question, generate goals
 from a uniform distribution with bounds ant = \[\[-4,-4\],\[20,4\]\],
-reacher \[\[-0.6 -1.4, -0.4\], \[0.8 0.2 0.5\]\].
+reacher \[\[-0.6, -1.4, -0.4\], \[0.8 0.2 0.5\]\].
 
 ``` {.python language="python"}
 def GoalConditionedEnv(object):
@@ -118,8 +118,8 @@ modify any of the parameters, list them in the caption of the figure.
 The final results should use the following experiment name:
 
 ``` {.bash language="bash"}
-python ift6131/run_hw4_gcrl.py env_name=reacher exp_name=q1_reacher
-python ift6131/run_hw4_gcrl.py env_name=antmaze exp_name=q1_ant
+python run_hw4_gcrl.py env_name=reacher exp_name=q1_reacher
+python run_hw4_gcrl.py env_name=antmaze exp_name=q1_ant
 ```
 
 #### Question 2: GCRL with normal distribution. \[2 pts\]

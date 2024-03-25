@@ -4,8 +4,9 @@ from gym.spaces import Box
 
     
 class GoalConditionedEnv(object):
-
-    def __init__(self, base_env):
+    import hw1.roble.util.class_util as classu
+    @classu.hidden_member_initialize
+    def __init__(self, base_env, **kwargs):
         # TODO
         self._env = base_env
 
@@ -45,10 +46,23 @@ class GoalConditionedEnv(object):
 
 class GoalConditionedEnvV2(GoalConditionedEnv):
 
-    def __init__(self, base_env):
+    import hw1.roble.util.class_util as classu
+    @classu.hidden_member_initialize
+    def __init__(self, base_env, **kwargs):
+        super().__init__(base_env, **kwargs)
         # TODO
+        super().__init__(base_env, **kwargs)
         self._env = base_env
 
+    def reset(self):
+        # Add code to generate a goal from a distribution
+        # TODO
+        pass
+        
+    def success_fn(self,last_reward):
+        # TODO
+        pass
+        
     def reset_step_counter(self):
         # Add code to track how long the current goal has been used.
         # TODO

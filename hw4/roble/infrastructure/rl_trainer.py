@@ -9,8 +9,8 @@ import numpy as np
 import torch
 
 from hw3.roble.infrastructure.rl_trainer import RL_Trainer
-from hw1.roble.infrastructure import pytorch_util as ptu
-from hw1.roble.infrastructure import utils
+from hw2.roble.infrastructure import pytorch_util as ptu
+from hw2.roble.infrastructure import utils
 from hw3.roble.agents.dqn_agent import DQNAgent
 from hw3.roble.agents.ddpg_agent import DDPGAgent
 from hw3.roble.agents.td3_agent import TD3Agent
@@ -95,7 +95,7 @@ class RL_Trainer(RL_Trainer):
 
 
         for itr in range(n_iter):
-            print("\n\n********** Iteration %i ************"%itr)
+            # print("\n\n********** Iteration %i ************"%itr)
 
             # decide if videos should be rendered/logged at this iteration
             if itr % self._params['logging']['video_log_freq'] == 0 and self._params['logging']['video_log_freq'] != -1:
@@ -135,7 +135,7 @@ class RL_Trainer(RL_Trainer):
             self._agent.add_to_replay_buffer(paths)
 
             # train agent (using sampled data from replay buffer)
-            print("\nTraining agent...")
+            # print("\nTraining agent...")
             all_logs = self.train_agent()
     
 
@@ -166,17 +166,17 @@ class RL_Trainer(RL_Trainer):
             self._env = create_reacher_env()
         elif self._params['env']['env_name'] == 'widowx':
             from hw4.roble.envs.roboverse.widowx import create_widow_env
-            self._env = create_widow_env()
+            self._env = create_widow_env(observation_mode='state')
         else:
             self._env = gym.make(env_name)
             
                 # Call your goal conditioned wrapper here (You can modify arguments depending on your implementation)
         if self._params['env']['task_name'] == 'gcrl':
-            self._env = GoalConditionedEnv(self._env)     
+            self._env = GoalConditionedEnv(self._env, **self._params['env'])     
         elif self._params['env']['task_name'] == 'gcrl_v2':
-            self._env = GoalConditionedEnvV2(self._env)
+            self._env = GoalConditionedEnvV2(self._env, self._params['env'])
         elif self._params['env']['task_name'] == 'hrl':
-            self._env = HRLWrapper(self._env)
+            self._env = HRLWrapper(self._env, self._params['env'])
         else:
             pass
         

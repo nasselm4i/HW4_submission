@@ -45,7 +45,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
                 )
             else:
                 self._std = nn.Parameter(
-                    torch.ones(self._ac_dim, dtype=torch.float32, device=ptu.device) * 0.15
+                    torch.ones(self._ac_dim, dtype=torch.float32, device=ptu.device) * 0.1
                 )
                 self._std.to(ptu.device)
                 if self._learn_policy_std:
@@ -149,6 +149,16 @@ class MLPPolicySL(MLPPolicy):
         
         
         # TODO: Create the full input to the IDM model (hint: it's not the same as the actor as it takes both obs and next_obs)
+        
+        # TODO: Transform the numpy arrays to torch tensors (for obs, next_obs and actions)
+        
+        # TODO: Create the full input to the IDM model (hint: it's not the same as the actor as it takes both obs and next_obs)
+        
+        # TODO: Get the predicted actions from the IDM model (hint: you need to call the forward function of the IDM model)
+        
+        # TODO: Compute the loss using the MLP_policy loss function
+        
+        # TODO: Update the IDM model.
         loss = TODO
         return {
             'Training Loss IDM': ptu.to_numpy(loss),
