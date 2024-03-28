@@ -9,26 +9,47 @@ class GoalConditionedEnv(object):
     def __init__(self, base_env, **kwargs):
         # TODO
         self._env = base_env
+        self.distribution = kwargs["distribution"]
+        if self.distribution == "uniform":
+            self.bounds = kwargs["uniform_bounds"]
+            self.random = np.random.uniform
+        elif self.distribution == "normal":
+            self.bounds = kwargs["gaussian_bounds"]
+            self.random = np.random.normal
+        else:
+            raise ValueError(f"Error: Distribution '{self.distribution}' unknown.")
+        self.goal_reached_threshold = kwargs["goal_reached_threshold"]
+        self.param1, self.param2 = self.bounds
+        self.goal_dimensions = len(self.bounds[0])
+        self.reset()
 
-    def success_fn(self,last_reward):
+    def success_fn(self, last_reward):
         # TODO
-        pass
+        return last_reward > self.goal_reached_threshold
     
     def reset(self):
         # Add code to generate a goal from a distribution
         # TODO
-        pass
-
+        # DONE
+        obs, info = self._env.reset()
+        self.goal = self.random(self.param1, self.param2, size=self.goal_dimensions)
+        obs = self.create_state(obs, self.goal)
+        return obs, info
+    
     def step(self, a):
         ## Add code to compute a new goal-conditioned reward
         # TODO
+        # DONE
+        obs, reward, done, info = self._env.step(a) # adjust the reward
+        obs = self.create_state(obs, self.goal)
         info["reached_goal"] = self.success_fn(reward)
-        pass
+        return obs, reward, done, info
 
-    def create_state(self,obs,goal):
+    def create_state(self, obs, goal):
         ## Add the goal to the state
         # TODO
-        pass
+        # DONE
+        return np.concatenate([obs, goal])
     
     @property
     def action_space(self):
