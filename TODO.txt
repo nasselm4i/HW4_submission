@@ -1,0 +1,279 @@
+Keypoints :
+
+- ~4098 for single policy gradient update
+- Standardize advantage for gradient update. 
+- Control policy noise, by keeping std fixed. Learning the policy std is often unstable.
+- Ant will not work well,
+- get to around -0.5 after about 1400 steps with PG and uniform distribution (Jaydan)
+
+
+[] Create a config file for each question/runs
+
+## Question 1 : (global state space) - Uniform Distribution Goal
+
+[X] Run vanilla Policy Gradient with 200 iterations
+    [] Reacher [[-4,-4],[20,4]]
+    [] Ant [[-0.6, -1.4, -0.4], [0.8, 0.2, 0.5]] (Do not do)
+[X] Run Modified Reacher with "gcrl" 1m iteration -> reward average -0.5
+[] Run Modified Widowx with "gcrl" (just for testing)
+
+
+## Question 2 : (global state space) - Normal Distribution Goal
+
+[] Running each run 3 times with different seeds
+[] Run for ant-v1 N([0,8],[4,4]) (many of these will be unreachable)
+[] Run for reacher-v1 N([[0.2, 0.7, 0.0],[0.3, 0.4, 0.05]])
+[] Run for widowx
+
+## Question 3 : (relative state space) - Relative Goal Position
+
+[] Create agent-relative
+    [] goal is provided as g_mod <- g - s
+    [] use this relative goal location as the goal you add to the state s_mod <- [s,g_mod]
+    [] distribution from the agent position 
+        [] Reacher N(agent position, 0.3)
+        [] Widow N(agent position, X)
+[] plot the distance to the generated goals.
+
+-----
+
+
+[] Report one figure for each question
+
+## Question 1 : (global state space)
+
+[] Provide the log file reacher_1.csv and ant_1.csv
+[] Include a Learning Curve (logging for the distance between the state and the goal and success)
+[] Make sure logged into the data folder
+
+## Question 2 : (global state space)
+
+[] Compare the goal distance performance between Uniform and Normal distribution
+
+## Question 3 :
+
+[] submit the logs for all three experiments (reacher, widowx and antmaze)
+[] make a two figures 
+    [] Average Reward across three questions
+    [] Average Success across three questions
+
+
+--------
+
+
+
+ 
+
+# FIXES :
+
+Guillaume Charron :
+
+FYI if your widowX environment is not working like it happened to me, change this at the beggining of  roboverse/bullet/render.py :
+import pybullet as p
+import numpy as np
+
+def render(height, width, view_matrix, projection_matrix,
+           shadow=1, light_direction=[1, 1, 1],
+           renderer=p.ER_BULLET_HARDWARE_OPENGL):
+    #  ER_BULLET_HARDWARE_OPENGL
+    img_tuple = p.getCameraImage(width,
+                                 height,
+                                 view_matrix,
+                                 projection_matrix,
+                                 shadow=shadow,
+                                 lightDirection=light_direction,
+                                 renderer=renderer)
+    _, _, img, depth, segmentation = img_tuple
+    # import ipdb; ipdb.set_trace()
+    # Here, if I do len(img), I get 9216.
+    img = np.reshape(np.array(img), (48, 48, 4))
+
+    img = img[:, :, :-1]
+    return img, depth, segmentation
+
+Also, if you have an out of bound issue with the action in the env.step(action) call, add this to roboverse/envs/widow250.py :
+    def step(self, action):
+        # TODO Clean this up
+        if np.isnan(np.sum(action)):
+            print('action', action)
+            raise RuntimeError('Action has NaN entries')
+
+        # ADD THIS SECTION
+        if action.shape[0] == 1:
+            action = action[0]
+        # ADD THIS SECTION
+
+        action = np.clip(action, -1, +1)  # TODO Clean this up
+
+        xyz_action = action[:3]  # ee position actions
+        abc_action = action[3:6]  # ee orientation actions
+        gripper_action = action[6]
+        neutral_action = action[7]
+
+    ------
+
+
+
+
+
+
+
+Q1:
+[X](Reacher) # To Re-Run problem with the success score
+python run_hw4_gcrl.py env.env_name=reacher env.exp_name=q1_reacher_uniform_seed_10 env.distribution=uniform logging.random_seed=10
+
+[X](Reacher)
+python run_hw4_gcrl.py env.env_name=reacher env.exp_name=q1_reacher_uniform_seed_20 env.distribution=uniform logging.random_seed=20
+
+[](Reacher)
+python run_hw4_gcrl.py env.env_name=reacher env.exp_name=q1_reacher_uniform_seed_30 env.distribution=uniform logging.random_seed=30
+
+[](WidowX)
+python run_hw4_gcrl.py env.env_name=widowx env.exp_name=q1_widowx_uniform_seed_10 env.distribution=uniform logging.random_seed=10
+
+[](WidowX)
+python run_hw4_gcrl.py env.env_name=widowx env.exp_name=q1_widowx_uniform_seed_20 env.distribution=uniform logging.random_seed=20
+
+[](WidowX)
+python run_hw4_gcrl.py env.env_name=widowx env.exp_name=q1_widowx_uniform_seed_30 env.distribution=uniform logging.random_seed=30
+
+
+Q2:
+[](Reacher)
+python run_hw4_gcrl.py env.env_name=reacher env.exp_name=q2_reacher_normal env.distribution=normal logging.random_seed=10
+
+[](Reacher)
+python run_hw4_gcrl.py env.env_name=reacher env.exp_name=q2_reacher_normal env.distribution=normal logging.random_seed=20
+
+[](Reacher)
+python run_hw4_gcrl.py env.env_name=reacher env.exp_name=q2_reacher_normal_seed_30 env.distribution=normal logging.random_seed=30
+
+[](WidowX)
+python run_hw4_gcrl.py env.env_name=widowx env.exp_name=q2_widowx_normal_seed_10 env.distribution=normal logging.random_seed=10
+
+[](WidowX)
+python run_hw4_gcrl.py env.env_name=widowx env.exp_name=q2_widowx_normal_seed_20 env.distribution=normal logging.random_seed=20
+
+[](WidowX)
+python run_hw4_gcrl.py env.env_name=widowx env.exp_name=q2_widowx_normal_seed_30 env.distribution=normal logging.random_seed=30
+
+Q3:
+[X](Reacher)
+python run_hw4_gcrl.py env.env_name=reacher env.exp_name=q3_reacher_normal_relative env.distribution=normal env.relative_goal=true
+
+[](WidowX)
+python run_hw4_gcrl.py env.env_name=widowx env.exp_name=q3_widowx_normal_relative env.distribution=normal env.relative_goal=true
+
+
+Q4:
+[X](Reacher) logging.save_params=true
+python run_hw4_gcrl.py env.env_name=reacher env.exp_name=q4_reacher_normal_k10 env.distribution=normal env.k=10 env.task_name=gcrl_v2 logging.save_params=true
+
+[X](Reacher)
+python run_hw4_gcrl.py env.env_name=reacher env.exp_name=q4_reacher_normal_k5 env.distribution=normal env.k=5 env.task_name=gcrl_v2
+
+
+[](WidowX) - Not explicitly asked
+python run_hw4_gcrl.py env.env_name=widowx env.exp_name=q4_widowx_normal_k10 env.distribution=normal env.k=10 env.task_name=gcrl_v2 logging.save_params=true
+
+[](WidowX) - Not explicitly asked
+python run_hw4_gcrl.py env.env_name=widowx env.exp_name=q4_widowx_normal_k5 env.distribution=normal env.k=5 env.task_name=gcrl_v2
+
+Q5:
+[X](Reacher)
+python run_hw4_gcrl.py env.exp_name=q5_hrl_gf10 env.env_name=reacher env.k=10 env.distribution=normal env.task_name=hrl
+
+
+
+
+Q1:
+
+```
+Include a learning curve plot showing the performance of your implementation on reacher and Widowx (x = timestep and y average reward)
+and line of the best mean reward.
+```
+[] One plot of the average reward with a line of the best mean reward
+
+Q2: 
+
+```
+Compare the goal distance performance between using the uniform distribution and the normal distribution. Since there is considerable variance between runs, you must run at least three random seeds for both distributions.
+```
+[] One plot uniform vs normal with WidowX and Reacher of the goal distance average per iteration (will put the average and std over 3 seed for each plot). So, 2 plot one for reacher and one for widowx, each with 2 curves (mean over 3 seeds) of uniform and normal.
+
+Q3 :
+
+
+```
+plot the distance to the generated goals.
+```
+[] 2 plots one for Reacher and one for widowx, only one run of relative goal with normal distribution and comparison with global goal. (x axis timestep, y axis distance to the generated goal)
+
+Q4:
+
+[] 2 plot, reacher and widowx, of the distance to generated goal for different k (there is 2 k, k=5 and k=10) SAVE BOTH
+
+Q5:
+
+
+
+---------------
+
+
+Report Problems :
+
+Problem in hw1/roble/infrastructure/rl_trainer.py :
+
+(line 73)
+```python
+        if 'model' in dir(self._env):
+            self._fps = 1/self._env.model.opt.timestep
+        elif 'env_wrappers' in self._params:
+            self._fps = 30 # This is not actually used when using the Monitor wrapper
+        elif 'video.frames_per_second' in self._env.metadata.keys():
+            self._fps = self._env.metadata['video.frames_per_second']
+        else:
+            self._fps = 10
+```
+The fact that we are using 
+
+```python
+@property
+def model(self):
+    return self._env.model
+```
+
+in the hw4/roble/infrastructure/gcrl_wrapper.py, it creates an error as we enter in the if statement `if 'model' in dir(self._env)` but hw4/roble/envs/widowx.py and widowx250.py (the vanilla env) don't have `model.opt.timestep` for setting up the frame per second.
+Second issue would come with `elif 'video.frames_per_second' in self._env.metadata.keys():` as we do not have a metadata function in our hw4/roble/infrastructure/gcrl_wrapper.py.
+A descent fix would be to add the following on each corresponding file (even though, I think that a better fix would be to change directly in hw1/roble/infrastructure/rl_trainer.py):
+
+hw4/roble/infrastructure/gcrl_wrapper.py
+Adding :
+```python
+@property
+def metadata(self):
+    return self._env.metadata
+```
+
+hw4/roble/envs/widowx.py
+```python
+def metadata(self):
+return {
+    "video":{
+        "frames_per_second": 100
+    }
+}
+```
+
+Replace:
+```python
+@property
+def model(self):
+    return self._env.model
+```
+By:
+```python
+@property
+def _model(self):
+    return self._env.model
+```

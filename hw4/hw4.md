@@ -157,9 +157,8 @@ generation distribution mean and plot the distance to the **generated
 goals**.
 
 ``` {.bash language="bash" breaklines="true"}
-python run_hw4_gcrl.py env_name=reacher exp_name=q3_reacher_normal_relative goal_dist=normal goal_rep=relative
-python run_hw4_gcrl.py env_name=widowx exp_name=q3_widowx_normal_relative goal_dist=normal goal_rep=relative
-python run_hw4_gcrl.py env_name=antmaze exp_name=q3_ant_normal_relative goal_dist=normal goal_rep=relative
+python run_hw4_gcrl.py env.env_name=reacher env.exp_name=q3_reacher_normal_relative env.distribution=normal env.relative_goal=true logging.save_params=true
+python run_hw4_gcrl.py env.env_name=widowx env.exp_name=q3_widowx_normal_relative env.distribution=normal env.relative_goal=true logging.save_params=true
 ```
 
 Submit the run logs for all three experiments above. In your report,

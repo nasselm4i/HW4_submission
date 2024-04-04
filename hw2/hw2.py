@@ -2,8 +2,6 @@ import os
 import time
 
 import sys
-print(sys.path)
-
 
 from hw2.roble.agents.mb_agent import MBAgent
 from hw2.roble.infrastructure.rl_trainer import RL_Trainer

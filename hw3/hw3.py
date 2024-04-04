@@ -40,8 +40,6 @@ class OffPolicyTrainer(object):
         else:
             print("Pick a rl_alg first")
             sys.exit()
-        print(self._params)
-        print(self._params['alg']['train_batch_size'])
 
         ################
         ## RL TRAINER
@@ -104,11 +102,11 @@ def my_app(cfg: DictConfig):
     # just add these two lines at the top of
     # your training script:
     
-    experiment = comet_ml.Experiment(
-    api_key=your key,
-    project_name=project name,
-    workspace="robot-learning"
-    )
+    # experiment = comet_ml.Experiment(
+    # api_key=your key,
+    # project_name=project name,
+    # workspace="robot-learning"
+    # )
 
     data = trainer.run_training_loop()
     print("Results: ", data)

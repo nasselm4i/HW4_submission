@@ -5,6 +5,7 @@ class ReplayBuffer(object):
 
     def __init__(self, max_size=1000000):
 
+        # self.HER
         self.max_size = max_size
         self.reset()
         
@@ -24,6 +25,9 @@ class ReplayBuffer(object):
 
         # convert new rollouts into their component arrays, and append them onto our arrays
         observations, actions, next_observations, terminals, concatenated_rews, unconcatenated_rews = convert_listofrollouts(paths)
+        # if self.HER:
+        #     self.hindsight_experience_replay()
+            
 
         if noised:
             observations = add_noise(observations)
@@ -83,3 +87,6 @@ class ReplayBuffer(object):
             rollouts_to_return = self.paths[-num_recent_rollouts_to_return:]
             observations, actions, next_observations, terminals, concatenated_rews, unconcatenated_rews = convert_listofrollouts(rollouts_to_return)
             return observations, actions, unconcatenated_rews, next_observations, terminals
+        
+    def hindsight_experience_replay(self, observations, actions, next_observations, terminals, concatenated_rews, unconcatenated_rews):
+        NotImplementedError

@@ -108,6 +108,8 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # return more flexible objects, such as a
     # `torch.distributions.Distribution` object. It's up to you!
     def forward(self, observation: torch.FloatTensor):
+        if not isinstance(observation, torch.FloatTensor):
+            observation = torch.from_numpy(observation).float()
         if self._discrete:
             logits = self._logits_na(observation)
             action_distribution = distributions.Categorical(logits=logits)
@@ -171,6 +173,18 @@ class MLPPolicyDeterministic(MLPPolicy):
         # TODO: update the policy and return the loss
         ## Hint you will need to use the q_fun for the loss
         ## Hint: do not update the parameters for q_fun in the loss
+        observations = ptu.from_numpy(observations)
+    
+        # Forward pass through the policy to get the actions
+        actions = self.forward(observations)
+        
+        qa_values = q_fun._q_net(observations, actions).squeeze(-1)
+        
+        loss = -qa_values.mean() # Loss
+        
+        self._optimizer.zero_grad()
+        loss.backward()
+        self._optimizer.step()
         return {"Training Loss": loss.item()}
     
 class MLPPolicyStochastic(MLPPolicy):
@@ -187,7 +201,21 @@ class MLPPolicyStochastic(MLPPolicy):
     def get_action(self, obs: np.ndarray) -> np.ndarray:
         # TODO: sample actions from the gaussian distribrution given by MLPPolicy policy when providing the observations.
         # Hint: make sure to use the reparameterization trick to sample from the distribution
-        
+        if isinstance(obs, np.ndarray):
+            observation = obs
+            if len(obs.shape) > 1:
+                observation = obs
+            else:
+                observation = obs[None]
+            observation = ptu.from_numpy(observation)
+        elif isinstance(obs, torch.Tensor):
+            observation = obs
+        else:
+            raise TypeError("Input must be a np.ndarray or torch.Tensor")
+
+        action = self(observation)
+        if not self._deterministic:
+            action = action.sample()  # Use rsample() if you need gradients to flow through this operation
         return ptu.to_numpy(action)
         
     def update(self, observations, q_fun):
@@ -195,6 +223,18 @@ class MLPPolicyStochastic(MLPPolicy):
         ## Hint you will need to use the q_fun for the loss
         ## Hint: do not update the parameters for q_fun in the loss
         ## Hint: you will have to add the entropy term to the loss using self.entropy_coeff
-        return {"Loss": loss.item()}
+        observations = ptu.from_numpy(observations)
+        action_distribution = self(observations)
+        actions = action_distribution.rsample()  # Parametrization trick
+        log_probs = action_distribution.log_prob(actions).sum(axis=-1)
+        q_values = q_fun(observations, actions)
+        if q_values.shape[1] > 1:
+            q_values, _ = q_values.min(dim=1)
+        loss = -(q_values - self.entropy_coeff * log_probs).mean()
+        
+        self._optimizer.zero_grad()
+        loss.backward()
+        self._optimizer.step()
+        return {"Actor Loss": loss.item()}
     
 #####################################################

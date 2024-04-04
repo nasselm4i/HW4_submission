@@ -12,7 +12,7 @@ from hw1.roble.infrastructure import utils
 
 # how many rollouts to save as videos to tensorboard
 MAX_NVIDEO = 1
-MAX_VIDEO_LEN = 40  # we overwrite this in the code below
+MAX_VIDEO_LEN = 1000  # we overwrite this in the code below
 
 
 class RL_Trainer(object):
@@ -68,7 +68,7 @@ class RL_Trainer(object):
         ac_dim = self._env.action_space.n if self._params['alg']['discrete'] else self._env.action_space.shape[0]
         self._params['alg']['ac_dim'] = ac_dim
         self._params['alg']['ob_dim'] = ob_dim
-
+        
         # simulation timestep, will be used for video saving
         if 'model' in dir(self._env):
             self._fps = 1/self._env.model.opt.timestep
@@ -77,7 +77,7 @@ class RL_Trainer(object):
         elif 'video.frames_per_second' in self._env.metadata.keys():
             self._fps = self._env.metadata['video.frames_per_second']
         else:
-            self._fps = 10
+            self._fps = 30
 
         #############
         ## AGENT
@@ -236,32 +236,54 @@ class RL_Trainer(object):
         # HINT1: use sample_trajectories from utils
         # HINT2: you want each of these collected rollouts to be of length self.params['ep_len']
 
+        if itr == 0:
+            if load_initial_expertdata is None:
+                raise ValueError("load_initial_expertdata cannot be None")
+            if load_initial_expertdata:
+                paths = pickle.load(open(self.params['expert_data'], 'rb'))
+                return paths, 0, None
+            else:
+                num_transitions_to_sample = self._params['alg']['batch_size_initial'] # batch_size_initial
+        else:
+            num_transitions_to_sample = self._params['alg']['batch_size']
+            
+        #     elif load_initial_expertdata is not None:
+        #         with open(load_initial_expertdata, 'rb') as f:
+        #             loaded_paths = pickle.load(f)
+        #         return loaded_paths, 0, None
+        # else:
+        #     num_transitions_to_sample = self._params['alg']['batch_size']
+            # (2) collect `self.params['batch_size']` transitions
+        # DONE collect `batch_size` samples to be used for training
+        # HINT1: use sample_trajectories from utils
+        # HINT2: you want each of these collected rollouts to be of length self.params['ep_len']
+
         print("\nCollecting data to be used for training...")
 
-        paths, envsteps_this_batch = TODO
+        paths, envsteps_this_batch = utils.sample_trajectories(self._env, collect_policy, num_transitions_to_sample, self._params['env']['max_episode_length'])
         # collect more rollouts with the same policy, to be saved as videos in tensorboard
         # note: here, we collect MAX_NVIDEO rollouts, each of length MAX_VIDEO_LEN
-
+        
         train_video_paths = None
         if self._log_video:
             print('\nCollecting train rollouts to be used for saving videos...')
-            ## TODO look in utils and implement sample_n_trajectories
-            train_video_paths = utils.sample_n_trajectories(self._env, collect_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True)
+            ## DONE look in utils and implement sample_n_trajectories
+            train_video_paths = utils.sample_n_trajectories(self._env, collect_policy, MAX_NVIDEO, self._params['env']['max_episode_length'], True)
         return paths, envsteps_this_batch, train_video_paths
 
     def train_agent(self):
         print('\nTraining agent using sampled data from replay buffer...')
         all_logs = []
         for train_step in range(self._params['alg']['num_agent_train_steps_per_iter']):
-            # TODO sample some data from the data buffer
+            # DONE sample some data from the data buffer
             # HINT1: use the agent's sample function
             # HINT2: how much data = self._params['train_batch_size']
-            ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = TODO
+            ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = self._agent.sample(self._params['alg']['train_batch_size'])
 
-            # TODO use the sampled data to train an agent
+            # DONE use the sampled data to train an agent
             # HINT: use the agent's train function
             # HINT: keep the agent's training log for debugging
-            train_log = TODO
+            train_log = self._agent.train(ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch)
             all_logs.append(train_log)
         return all_logs
 
@@ -300,8 +322,8 @@ class RL_Trainer(object):
         eval_paths, eval_envsteps_this_batch = utils.sample_trajectories(self._env, eval_policy, 
                                                                          self._params['alg']['eval_batch_size'], 
                                                                          self._params['env']['max_episode_length'])
-
         # save eval rollouts as videos in the video folder (for grading)
+        # print('self._fps', self._fps)
         if self._log_video:
             if train_video_paths is not None:
                 #save train/eval videos
@@ -309,7 +331,7 @@ class RL_Trainer(object):
                 self._logger.log_paths_as_videos(train_video_paths, itr, fps=self._fps, max_videos_to_save=MAX_NVIDEO,
                                             video_title='train_rollouts')
             print('\nCollecting video rollouts eval')
-            eval_video_paths = utils.sample_n_trajectories(self._env, eval_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True)
+            eval_video_paths = utils.sample_n_trajectories(self._env, eval_policy, MAX_NVIDEO, self._params['env']['max_episode_length'], True)
             print('\nSaving eval rollouts as videos...')
             self._logger.log_paths_as_videos(eval_video_paths, itr, fps=self._fps,max_videos_to_save=MAX_NVIDEO,
                                             video_title='eval_rollouts')
@@ -333,8 +355,9 @@ class RL_Trainer(object):
             logs["eval_returns"] = eval_returns
             logs["Train_EnvstepsSoFar"] = self._total_envsteps
             logs["TimeSinceStart"] = time.time() - self._start_time
-            last_log = training_logs[-1]  # Only use the last log for now
-            logs.update(last_log)
+            # last_log = training_logs["Training_Loss"]  # Only use the last log for now
+            # print("last_log", training_logs)
+            # logs.update(last_log)
             logs["reward"] = [path["reward"] for path in paths]
             logs["eval_reward"] = [path["reward"] for path in eval_paths]
             for key in paths[0]["infos"][0]:

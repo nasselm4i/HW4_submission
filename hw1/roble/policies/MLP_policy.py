@@ -84,7 +84,16 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     def get_action(self, obs: np.ndarray) -> np.ndarray:
         # TODO: 
         ## Provide the logic to produce an action from the policy
-        pass
+        if len(obs.shape) > 1:
+            observation = obs
+        else:
+            observation = obs[None]
+
+        observation = ptu.from_numpy(observation)
+        action = self(observation)
+        if not self._deterministic :
+            action = action.sample()  # don't bother with rsample
+        return ptu.to_numpy(action)
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
@@ -96,18 +105,45 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # return more flexible objects, such as a
     # `torch.distributions.Distribution` object. It's up to you!
     def forward(self, observation: torch.FloatTensor):
+        # observation = ptu.from_numpy(observation)
         if self._discrete:
             logits = self._logits_na(observation)
             action_distribution = distributions.Categorical(logits=logits)
             return action_distribution
         else:
+            if not isinstance(observation, torch.Tensor):
+                observation = ptu.from_numpy(observation)
+            # observation_tensor = torch.from_numpy(observation).float().to(ptu.device)
+            # print("Observation: ", type(observation))
             if self._deterministic:
-                ##  TODO output for a deterministic policy
-                action_distribution = TODO
+                ## TODO :  output for a deterministic policy
+                action = self._mean_net(observation)
+                return action
+                # b_mean = self._mean_net(observation)
+                # # Create a scale_tril matrix with an extremely small standard deviation
+                # # to approximate deterministic behavior
+                # scale_tril = torch.diag(torch.exp(torch.full_like(self._logstd, -20)))  # -20 or other large negative value for near-zero std
+                # b_scale_tril = scale_tril.repeat(b_mean.shape[0], 1, 1)
+                # action_distribution = distributions.MultivariateNormal(
+                #     b_mean,
+                #     scale_tril=b_scale_tril,             
+                # )
+                # action_mean = self._mean_net(observation)
+                # eps = 1e-11 # near-zero variance
+                # action_variance = torch.full_like(action_mean, eps)
+                # action_distribution = distributions.Normal(action_mean, action_variance)
+                # return action_distribution
             else:
+                ## DONE output for a stochastic policy
+                # action_distribution = self._mean_net(observation)
+                b_mean = self._mean_net(observation)
+                scale_tril = torch.diag(torch.exp(self._std))
+                b_scale_tril = scale_tril.repeat(b_mean.shape[0], 1, 1)
+                action_distribution = distributions.MultivariateNormal(
+                    b_mean,
+                    scale_tril=b_scale_tril,
+                )
                 
-                ##  TODO output for a stochastic policy
-                action_distribution = TODO
         return action_distribution
     ##################################
 

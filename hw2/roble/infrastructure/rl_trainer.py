@@ -123,7 +123,7 @@ class RL_Trainer(RL_Trainer):
                 self.perform_logging(itr, paths, eval_policy, train_video_paths, all_logs)
 
                 if self._params['logging']['save_params']:
-                    self._agent.save('{}/agent_itr_{}.pt'.format(self._params['logging']['logdir'], itr))
+                    self._agent.save('{}/agent.pt'.format(self._params['logging']['logdir'], itr))
         
         return self._logger.get_table_dict()
 
@@ -144,7 +144,7 @@ class RL_Trainer(RL_Trainer):
 
         super().perform_logging(itr, paths, eval_policy, train_video_paths, all_logs)
         
-        print('Done logging MBRL...\n\n')
+        print('Done perform_logging (hw2)...\n\n')
 
     def log_model_predictions(self, itr, all_logs):
         # model predictions
@@ -158,7 +158,6 @@ class RL_Trainer(RL_Trainer):
         # calculate and log model prediction error
         mpe, true_states, pred_states = utils.calculate_mean_prediction_error(self._env, action_sequence, 
                                                                               self._agent._dyn_models, self._agent._actor._data_statistics)
-        print("assert:", self._params['alg']['ob_dim'], " == " , true_states.shape[1], " == ", pred_states.shape[1])
         assert self._params['alg']['ob_dim'] == true_states.shape[1] == pred_states.shape[1]
         ob_dim = self._params['alg']['ob_dim']
         ob_dim = 2*int(ob_dim/2.0) ## skip last state for plotting when state dim is odd

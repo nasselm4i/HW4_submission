@@ -14,7 +14,8 @@ class PGAgent(BaseAgent):
 
         # init vars
         self._agent_params = kwargs
-        print ("self.agent_params: ", self._agent_params)
+        print("Using PGAgent ...")
+        # print ("self.agent_params: ", self._agent_params)
 
         if self._gae_lambda == 'None':
             self._gae_lambda = None
@@ -45,6 +46,9 @@ class PGAgent(BaseAgent):
         q_values = self.calculate_q_vals(rewards_list)
         advantages = self.estimate_advantage(observations, rewards_list, q_values, terminals)
         # advantages = advantages / np.std(advantages) ## Try to keep the statistics of the advantages standardized
+        # print("len(actions)", len(actions))
+        # print("len(action)", [len(action) for action in actions])
+        # print("actions", actions)
         train_log = self._actor.update(observations, actions, advantages=advantages, q_values=q_values)
         
         # for critic_update in range(self._num_critic_updates_per_agent_update):

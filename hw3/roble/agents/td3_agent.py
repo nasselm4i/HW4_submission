@@ -15,4 +15,6 @@ class TD3Agent(DDPGAgent):
         
         self._q_fun = TD3Critic(self._actor, 
                                **kwargs)
-        
+    
+    def save(self, filepath):
+        return self._actor.save(filepath)    

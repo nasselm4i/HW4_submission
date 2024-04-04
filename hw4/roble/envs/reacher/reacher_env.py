@@ -22,7 +22,7 @@ class Reacher7DOFEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.skip = self.frame_skip
 
 
-    def _get_obs(self):
+    def get_obs(self):
         return np.concatenate([
             self.data.qpos.flat, #[7]
             self.data.qvel.flatten() / 10., #[7]
@@ -42,7 +42,8 @@ class Reacher7DOFEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         env_info = {'ob': ob,
                     # 'rewards': self.reward_dict,
                     'score': score,
-                    "success": self.get_target_dist(ob) < 0.2}
+                    # "success": self.get_target_dist(ob) < 0.3
+                    }
 
         return ob, reward, done, env_info
 

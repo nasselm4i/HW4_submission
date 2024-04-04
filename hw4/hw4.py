@@ -3,6 +3,9 @@ import time
 import sys
 import comet_ml
 import hydra, json
+from datetime import datetime
+import pytz
+timezone_montreal = datetime.now(pytz.timezone('America/Montreal'))
 
 from hw3.roble.agents.dqn_agent import DQNAgent
 from hw3.roble.agents.ddpg_agent import DDPGAgent
@@ -37,8 +40,8 @@ class offpolicy_Trainer(object):
         else:
             print("Pick a rl_alg first")
             sys.exit()
-        print(self.params)
-        print(self.params['alg']['train_batch_size'])
+        # print(self.params)
+        # print(self.params['alg']['train_batch_size'])
 
         ################
         ## RL TRAINER
@@ -60,22 +63,21 @@ class offpolicy_Trainer(object):
 def my_app(cfg: DictConfig): 
     print(OmegaConf.to_yaml(cfg))
     import os
-    print("Command Dir:", os.getcwd())
+    # print("Command Dir:", os.getcwd())
     params = vars(cfg)
     # params.extend(env_args)
     for key, value in cfg.items():
         params[key] = value
 
-    print ("params: ", params)
-
     ##################################
     ### CREATE DIRECTORY FOR LOGGING
     ##################################
 
-
+    # if params["env"]["env_exp"] == "debug":
+    #     folder = "test/"
     logdir_prefix = 'hw4_'  # keep for autograder
 
-    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../data')
+    data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), f'../data')
 
     if not (os.path.exists(data_path)):
         os.makedirs(data_path)
@@ -109,11 +111,11 @@ def my_app(cfg: DictConfig):
     """
     if not cfg.logging.debug:
         experiment = comet_ml.Experiment(
-        api_key="v063r9jHG5GDdPFvCtsJmHYZu",
+        api_key="5p647wDroENLOHOGebOmGFNGt",
         project_name="roble",
-        workspace="robot-learning"
+        workspace="nassimmassaudi"
         )
-        experiment.add_tag("hw3")
+        experiment.add_tag("hw4")
         experiment.set_name(exp_name)
         experiment.set_filename(fname="cometML_test")
         
