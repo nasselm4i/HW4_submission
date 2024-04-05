@@ -1,7 +1,7 @@
 # Running this homework
 
 First off, we need a different version of python for this homework.
-Create a new venv using `python3.9`. 
+Create a new venv using `python3.9 -m venv venv`. 
 Then, install the requirements: run `pip3 install -r requirements.txt` in the main folder of this repository.
 
 You can run `./roble/ppo.py` and `./roble/sac.py` by using the `../run_hw7_sim2real.py`. 
