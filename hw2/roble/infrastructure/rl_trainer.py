@@ -86,9 +86,12 @@ class RL_Trainer(RL_Trainer):
             # decide if metrics should be logged
             if self._params['logging']['scalar_log_freq'] == -1:
                 self._log_metrics = False
+                self._log_metrics = False
             elif itr % self._params['logging']['scalar_log_freq'] == 0:
                 self._log_metrics = True
+                self._log_metrics = True
             else:
+                self._log_metrics = False
                 self._log_metrics = False
 
             use_batchsize = self._params['alg']['batch_size']
