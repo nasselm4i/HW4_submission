@@ -1,7 +1,6 @@
 import os
 import time
 import sys
-import comet_ml
 import hydra, json
 
 from hw3.roble.agents.ddpg_agent import DDPGAgent
