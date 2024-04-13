@@ -9,10 +9,11 @@ class GaussianObsWrapper(ObservationWrapper):
         self.scale = scale
         
     def observation(self, observation: ObsType) -> WrapperObsType:
-        return self._noise_obs(observation)
+        noisy_obs = self._noise_obs(observation)
+        return  np.clip(noisy_obs, self.observation_space.low, self.observation_space.high)
 
     def _noise_obs(self, obs):
         # TODO: add noise
         # DONE
-        obs = np.random.normal(obs, abs(obs*self.scale), size=obs.shape)
+        obs = np.random.normal(obs, scale=self.scale, size=obs.shape)
         return obs

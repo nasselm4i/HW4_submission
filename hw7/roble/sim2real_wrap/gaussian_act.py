@@ -16,7 +16,7 @@ class GaussianActWrapper(ActionWrapper):
         # TODO: add noise
         # DONE
         act = np.random.normal(loc=act, 
-                               scale=abs(act*self.scale), 
+                               scale=self.scale, 
                                size=act.shape)
         return act
 
