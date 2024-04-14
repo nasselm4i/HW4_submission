@@ -18,6 +18,7 @@ SHOW_LOCAL_VARIABLE=True
 class Log:
     def __init__(self, cfg, PATH):
         from hw7.roble.utils.logging_utils import Logger as TableLogger
+        self.cfg = cfg
         self._logger = TableLogger()
         self._logger.add_folder_output(folder_name=f"{PATH}")
         self._logger.add_tabular_output(file_name=f"{PATH}/log_data.csv")
@@ -28,10 +29,10 @@ class Log:
 
     def log_dict(self, dico):
         for k, v in dico.items():
-            if isinstance(v, list) and len(v) == 0:
-                continue
+            # if isinstance(v, list) and len(v) == 0:
+            #     continue
             self._logger.record_tabular_misc_stat(k, v)
-        self._logger.dump_tabular()
+            self._logger.dump_tabular()
 
 
 @hydra.main(config_path="conf", config_name="config_hw7")

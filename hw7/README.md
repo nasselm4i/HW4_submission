@@ -10,11 +10,11 @@ Both PPO and SAC use the same config file. In this file, `../conf/config_hw7.yam
 Like the other homeworks, we use hydra to manage config files. This means that you can override the configs like so:
 
 ```bash
-python run_hw7_sim2real.py meta.sac_instead=False meta.add_to_runname=Q2.1_PPO meta.track=True ppo.num_envs=50  # Part 2.1  DONE
-python run_hw7_sim2real.py meta.sac_instead=True meta.add_to_runname=Q2.2_SAC meta.track=True sac.num_envs=16  # Part 2.2  DONE 
+python run_hw7_sim2real.py meta.sac_instead=False meta.add_to_runname=Q2.1_PPO meta.track=True ppo.num_envs=50  # Part 2.1  DONE 28206 40%
+python run_hw7_sim2real.py meta.sac_instead=True meta.add_to_runname=Q2.2_SAC meta.track=True sac.num_envs=16  # Part 2.2  DONE 37102 
 
-python run_hw7_sim2real.py sim2real.history_len=0 meta.add_to_runname=Q3h0_PPO meta.track=True ppo.num_envs=50 # Part 3    
-python run_hw7_sim2real.py sim2real.history_len=4 meta.add_to_runname=Q3h4_PPO meta.track=True ppo.num_envs=50  # Part 3    
+python run_hw7_sim2real.py sim2real.history_len=0 meta.add_to_runname=Q3h0_PPO meta.track=True ppo.num_envs=50 # Part 3    DONE 33166 77%
+python run_hw7_sim2real.py sim2real.history_len=4 meta.add_to_runname=Q3h4_PPO meta.track=True ppo.num_envs=50  # Part 3   
 python run_hw7_sim2real.py sim2real.history_len=0 meta.sac_instead=True meta.add_to_runname=Q3h0_SAC meta.track=True sac.num_envs=16 # Part 3    
 python run_hw7_sim2real.py sim2real.history_len=4 meta.sac_instead=True meta.add_to_runname=Q3h4_SAC meta.track=True sac.num_envs=16  # Part 3   
 
@@ -26,6 +26,28 @@ python run_hw7_sim2real.py sim2real.gaussian_obs_scale=0.01 sim2real.gaussian_ac
 python run_hw7_sim2real.py sim2real.gaussian_obs_scale=0.1 sim2real.gaussian_act_scale=0.1 meta.add_to_runname=Q3g0.1_SAC meta.sac_instead=True meta.track=True sac.num_envs=16    # Part 3
 python run_hw7_sim2real.py sim2real.gaussian_obs_scale=1.0 sim2real.gaussian_act_scale=1.0 meta.add_to_runname=Q3g1_SAC meta.sac_instead=True meta.track=True sac.num_envs=16     # Part 3
 ```
+
+28206
+```bash
+python run_hw7_sim2real.py sim2real.history_len=4 meta.add_to_runname=Q3h4_PPO meta.track=True ppo.num_envs=50 
+python run_hw7_sim2real.py sim2real.history_len=0 meta.sac_instead=True meta.add_to_runname=Q3h0_SAC meta.track=True sac.num_envs=30
+python run_hw7_sim2real.py sim2real.history_len=4 meta.sac_instead=True meta.add_to_runname=Q3h4_SAC meta.track=True sac.num_envs=30  
+```
+
+33166
+```bash
+python run_hw7_sim2real.py sim2real.gaussian_obs_scale=0.01 sim2real.gaussian_act_scale=0.01 meta.add_to_runname=Q3g0.01_PPO meta.track=True ppo.num_envs=50
+python run_hw7_sim2real.py sim2real.gaussian_obs_scale=0.1 sim2real.gaussian_act_scale=0.1 meta.add_to_runname=Q3g0.1_PPO meta.track=True ppo.num_envs=50
+python run_hw7_sim2real.py sim2real.gaussian_obs_scale=1.0 sim2real.gaussian_act_scale=1.0 meta.add_to_runname=Q3g1_PPO meta.track=True ppo.num_envs=50
+```
+
+37102
+```bash
+python run_hw7_sim2real.py sim2real.gaussian_obs_scale=0.01 sim2real.gaussian_act_scale=0.01 meta.add_to_runname=Q3g0.01_SAC meta.sac_instead=True meta.track=True sac.num_envs=80 # Part 3 DONE
+python run_hw7_sim2real.py sim2real.gaussian_obs_scale=0.1 sim2real.gaussian_act_scale=0.1 meta.add_to_runname=Q3g0.1_SAC meta.sac_instead=True meta.track=True sac.num_envs=80    # Part 3
+python run_hw7_sim2real.py sim2real.gaussian_obs_scale=1.0 sim2real.gaussian_act_scale=1.0 meta.add_to_runname=Q3g1_SAC meta.sac_instead=True meta.track=True sac.num_envs=80     # Part 3
+```
+
 
 An attentive reader might notice that each of these run lines correspond to the different commands we ask you to run in the PDF...
 

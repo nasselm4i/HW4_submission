@@ -153,3 +153,6 @@ RUN pip install -r /root/playground/requirements.txt
 ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "cloudspace", "bash", "-c", "while true; do sleep 30; done;"]
 
 RUN ls
+
+
+conda env create -f environment.yml
