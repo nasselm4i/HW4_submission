@@ -29,8 +29,8 @@ class Log:
 
     def log_dict(self, dico):
         for k, v in dico.items():
-            # if isinstance(v, list) and len(v) == 0:
-            #     continue
+            if isinstance(v, list) and len(v) == 0:
+                continue
             self._logger.record_tabular_misc_stat(k, v)
             self._logger.dump_tabular()
 

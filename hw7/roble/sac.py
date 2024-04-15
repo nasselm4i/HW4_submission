@@ -154,6 +154,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         return [], [], [] , []
 
     LOG_dico = init_log_dico()
+    train_returns, train_ep_lens = [], []
     # TRY NOT TO MODIFY: start the game
     obs, _ = envs.reset(seed=args.seed)
     for global_step in range((args.total_timesteps // args.num_envs)):
