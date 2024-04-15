@@ -159,15 +159,17 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     obs, _ = envs.reset(seed=args.seed)
     for global_step in range((args.total_timesteps // args.num_envs)):
         
+        
+        GlobalStep = global_step * envs.num_envs
+        SingleStep = global_step
+        
         if len(LOG_dico) > 0:
             # LOG_dico["TimeSinceStart"] = time.time() - start_time
             # LOG_dico["VectorizedStep"] = global_step * envs.num_envs
             # LOG_dico["GlobalStep"] = global_step * envs.num_envs
             # LOG_dico["SingleStep"] = global_step
             TimeSinceStart = time.time() - start_time
-            VectorizedStep = global_step * envs.num_envs
-            GlobalStep = global_step * envs.num_envs
-            SingleStep = global_step
+            # VectorizedStep = global_step * envs.num_envs
             
             # logger.log_dict(LOG_dico)
             # LOG_dico = init_log_dico()
@@ -201,7 +203,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                     train_ep_lens.append(info["episode"]["l"])
             
             R = np.array(R).mean()
-            print(f"global_step={global_step}, episodic_return={R}")
+            print(f"global_step={GlobalStep}/{args.total_timesteps}, episodic_return={R}")
             
 
         # TRY NOT TO MODIFY: save data to reply buffer; handle `final_observation`
@@ -270,7 +272,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             if global_step % (args.total_timesteps // 10000) == 0:
                 
                 LOG_dico["TimeSinceStart"] = TimeSinceStart
-                LOG_dico["VectorizedStep"] = VectorizedStep
+                # LOG_dico["VectorizedStep"] = VectorizedStep
                 LOG_dico["GlobalStep"] = GlobalStep
                 LOG_dico["SingleStep"] = SingleStep
                 
