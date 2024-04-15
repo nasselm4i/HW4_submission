@@ -1,3 +1,4 @@
+
 # docs and experiment results can be found at https://docs.cleanrl.dev/rl-algorithms/sac/#sac_continuous_actionpy
 import functools
 import random
@@ -144,30 +145,35 @@ poetry run pip install "stable_baselines3==2.0.0a1"
         LOG_dico = {}
         LOG_dico["train_returns"] = []
         LOG_dico["train_ep_lens"] = []
-        LOG_dico["eval_returns"] = []
-        LOG_dico["eval_ep_lens"] = []
+        # LOG_dico["eval_returns"] = []
+        # LOG_dico["eval_ep_lens"] = []
+        
         return LOG_dico
     
-    def reset_logs():
-        train_returns = []
-        train_ep_lens = []
-        eval_returns = []
-        eval_ep_lens = []
-        return train_returns, train_ep_lens, eval_returns, eval_ep_lens
+    def reset_dict_values():
+        return [], [], [] , []
 
     LOG_dico = init_log_dico()
-    train_returns, train_ep_lens, _, _ = reset_logs()
     # TRY NOT TO MODIFY: start the game
     obs, _ = envs.reset(seed=args.seed)
-    num_steps = args.total_timesteps // args.num_envs
-    for global_step in range(num_steps):
-        # if log_count:
+    for global_step in range((args.total_timesteps // args.num_envs)):
+        
+        if len(LOG_dico) > 0:
             # LOG_dico["TimeSinceStart"] = time.time() - start_time
             # LOG_dico["VectorizedStep"] = global_step * envs.num_envs
             # LOG_dico["GlobalStep"] = global_step * envs.num_envs
             # LOG_dico["SingleStep"] = global_step
+            TimeSinceStart = time.time() - start_time
+            VectorizedStep = global_step * envs.num_envs
+            GlobalStep = global_step * envs.num_envs
+            SingleStep = global_step
+            
             # logger.log_dict(LOG_dico)
             # LOG_dico = init_log_dico()
+            LOG_dico["train_returns"] = train_returns.copy()
+            LOG_dico["train_ep_lens"] = train_ep_lens.copy()
+            train_returns, train_ep_lens = [], []
+            
             
         # ALGO LOGIC: put action logic here
         if global_step < args.learning_starts:
@@ -192,12 +198,7 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                     
                     train_returns.append(info["episode"]["r"])
                     train_ep_lens.append(info["episode"]["l"])
-                    train_returns, train_ep_lens, _, _ =  reset_logs()
-                    # LOG_dico["TimeSinceStart"] = time.time() - start_time
-                    # LOG_dico["VectorizedStep"] = global_step * envs.num_envs
-                    # LOG_dico["GlobalStep"] = global_step * envs.num_envs
-                    # LOG_dico["SingleStep"] = global_step
-
+            
             R = np.array(R).mean()
             print(f"global_step={global_step}, episodic_return={R}")
             
@@ -265,7 +266,13 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                     target_param.data.copy_(args.tau * param.data + (1 - args.tau) * target_param.data)
 
 
-            if global_step % 1000 == 0:
+            if global_step % (args.total_timesteps // 10000) == 0:
+                
+                LOG_dico["TimeSinceStart"] = TimeSinceStart
+                LOG_dico["VectorizedStep"] = VectorizedStep
+                LOG_dico["GlobalStep"] = GlobalStep
+                LOG_dico["SingleStep"] = SingleStep
+                
                 LOG_dico["losses/qf1_values"] = qf1_a_values.mean().item()
                 LOG_dico["losses/qf2_values"] = qf2_a_values.mean().item()
                 LOG_dico["losses/qf1_loss"] = qf1_loss.item()
@@ -277,19 +284,8 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                 LOG_dico["charts/SPS"] = int(global_step / (time.time() - start_time))
                 if args.autotune:
                     LOG_dico["losses/alpha_loss"] = alpha_loss.item()
-                LOG_dico["TimeSinceStart"] = time.time() - start_time
-                LOG_dico["VectorizedStep"] = global_step * envs.num_envs
-                LOG_dico["GlobalStep"] = global_step * envs.num_envs
-                LOG_dico["SingleStep"] = global_step
-                
-                LOG_dico["train_returns"] = train_returns
-                LOG_dico["train_ep_lens"] = train_ep_lens
                 logger.log_dict(LOG_dico)
-                
+                TimeSinceStart, VectorizedStep, GlobalStep, SingleStep = 0, 0, 0, 0
                 LOG_dico = init_log_dico()
-                
-                
-                
 
     envs.close()
-
